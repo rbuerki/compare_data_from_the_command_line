@@ -1,19 +1,12 @@
-#! python3
-
 """
-This is a program to compare dataframes from the CLI. Simply pass the names of / path
-to the 2 files as arguments. There are checks for an identical structure but if row
-count differs while the indices are overlapping the matching subselection is compared.
+# Compare Pandas DataFrames From The Command Line
 
-TO DO:
-I have not tested all possible cases yet.
-Possibility to drop cols would be nice as an extra argument.
-the try-execpt block is a workaround so that i can import the functions into other modules ...
+Author: [Raphael Bürki](https://github.com/rbuerki)\n
+Source: [Github](https://www.linkedin.com/in/raphael-buerki/)
 """
 
 import pandas as pd
 import sys
-
 
 # Parse CL arguments
 try:
@@ -44,9 +37,7 @@ def check(df1, df2):
             raise Exception(
                 "Cannot compare dataframes. Shape differs on columns and rows."
             )
-        raise Exception(
-                "Cannot compare dataframes. Shape differs on columns."
-            )
+        raise Exception("Cannot compare dataframes. Shape differs on columns.")
 
     if df1.shape[0] != df2.shape[0]:
         idx1 = set(df1.index.values)
@@ -59,7 +50,7 @@ def check(df1, df2):
                 )
             print(
                 f"Dataframe 2 misses {len(idx1) - len(idx2)} rows.\n",
-                "Will compare to the matching subset of dataframe 1.\n"
+                "Will compare to the matching subset of dataframe 1.\n",
             )
             # Filter df1 for index values common with df2
             df1 = df1.reindex(df2.index)
@@ -72,7 +63,7 @@ def check(df1, df2):
                 )
             print(
                 f"Dataframe 1 misses {len(idx2) - len(idx1)} rows.\n",
-                "Will compare to the matching subset of dataframe 2.\n"
+                "Will compare to the matching subset of dataframe 2.\n",
             )
             # Filter df2 for index values common with df1
             df2 = df2.reindex(df1.index)
@@ -85,11 +76,12 @@ def compare(df1, df2):
     if df2.equals(df1):
         print("Successfully compared. DataFrames are equal.")
     else:
-        df_diff = (df1 != df2)
+        df_diff = df1 != df2
         print(
             "Successfully compared. Dataframes are NOT equal.\n",
-            f"Differences in:\n\n{df_diff.sum()}"
+            f"Differences in:\n\n{df_diff.sum()}",
         )
+
 
 # df1 = pd.read_csv("./loeb_segments_2020-05-19-11-00-25.csv")
 # df2 = pd.read_csv("./loeb_segments_2020-05-12-06-41-07.csv")
@@ -100,5 +92,5 @@ def main():
     compare(df1_checked, df2_checked)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
