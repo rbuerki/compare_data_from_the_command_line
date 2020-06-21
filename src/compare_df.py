@@ -5,92 +5,84 @@ Author: [Raphael Bürki](https://github.com/rbuerki)\n
 Source: [Github](https://www.linkedin.com/in/raphael-buerki/)
 """
 
+from typing import Tuple
 import pandas as pd
-import sys
-
-# Parse CL arguments
-try:
-    files = [sys.argv[1], sys.argv[2]]
-    df1 = pd.read_csv(files[0]).sort_index()
-    df2 = pd.read_csv(files[1]).sort_index()
-except:
-    pass
 
 
-def check(df1, df2):
-
-    df1.fillna("None", inplace=True)
-    df2.fillna("None", inplace=True)
-
-    if df1.shape == df2.shape:
-        if list(df1.columns) != list(df2.columns):
-            raise Exception(
-                "Cannot compare dataframes. Shape ok, but column labels differ."
-            )
-        if list(df1.index) != list(df2.index):
-            raise Exception(
-                "Cannot compare dataframes. Shape ok, but column labels differ."
-            )
-
-    if df1.shape[1] != df2.shape[1]:
-        if df1.shape[0] != df2.shape[0]:
-            raise Exception(
-                "Cannot compare dataframes. Shape differs on columns and rows."
-            )
-        raise Exception("Cannot compare dataframes. Shape differs on columns.")
-
-    if df1.shape[0] != df2.shape[0]:
-        idx1 = set(df1.index.values)
-        idx2 = set(df2.index.values)
-
-        if idx1 > idx2:
-            if len(idx2.difference(idx1)) != 0:
-                raise Exception(
-                    "Cannot compare dataframes. Index values do not overlap."
-                )
-            print(
-                f"Dataframe 2 misses {len(idx1) - len(idx2)} rows.\n",
-                "Will compare to the matching subset of dataframe 1.\n",
-            )
-            # Filter df1 for index values common with df2
-            df1 = df1.reindex(df2.index)
-            assert len(df1) == len(df2), "Filtering for same length went wrong ..."
-
-        if idx2 > idx1:
-            if len(idx1.difference(idx2)) != 0:
-                raise Exception(
-                    "Cannot compare dataframes. Index values do not overlap."
-                )
-            print(
-                f"Dataframe 1 misses {len(idx2) - len(idx1)} rows.\n",
-                "Will compare to the matching subset of dataframe 2.\n",
-            )
-            # Filter df2 for index values common with df1
-            df2 = df2.reindex(df1.index)
-            assert len(df1) == len(df2), "Filtering for same length went wrong ..."
-
-    return df1, df2
+def load_files(path_1: str, path_2: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Load data from files and return the dataframes."""
+    dataframes = ()
+    for path in [path_1, path_2]:
+        for separator in [",", ";", "\t", "|"]:
+            df = pd.read_csv(path, sep=f"{separator}", engine="python",)
+            if len(df.columns) > 1:
+                break
+        print(f"DF loaded, with shape {df.shape}")
+        df = df.sort_index()
+        df.columns = sorted(list(df.columns))
+        dataframes.append(df.sort_index())
+        return dataframes
 
 
-def compare(df1, df2):
-    if df2.equals(df1):
-        print("Successfully compared. DataFrames are equal.")
+def impute_missing_values(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Impute any missing values with a str, because they can mess up comparisons."""
+    df_1.fillna("MISSING", inplace=True)
+    df_2.fillna("MISSING", inplace=True)
+    return df_1, df_2
+
+
+def compare_if_dataframes_are_equal(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Compare if the two dataframes are equal."""
+    return df_1.equals(df_2)
+
+
+def check_for_same_shape(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Check if the dataframes are of same shape, return a boolean value."""
+    return df_1.shape == df_2.shape
+
+
+def check_for_identical_columns(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Check if the (ordered) columns are identical, return a boolean value."""
+    return list(df_1.columns) == list(df_2.columns)
+
+
+def check_for_identical_indexes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Check if the (ordered) indexes are identical, return a boolean value."""
+    return set(df_1.index) == set(df_2.index)
+
+
+def handle_different_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Check if the index values of the shorter dataframe fully overlap
+    with the values of the longer dataframe, return a boolean value.
+    """
+    if len(df_1) > len(df_2):
+        df_1 = check_for_overlapping_index(df_1, df_2)
+        return df_1, df_2
+    elif len(df_2) > len(df_1):
+        df_2 = check_for_overlapping_index(df_2, df_1)
+        return df_1, df_2
     else:
-        df_diff = df1 != df2
+        assert (
+            check_for_identical_indexes(df_1, df_2) is False
+        ), "Something strange happened ..."
+        raise ValueError("Cannot compare dataframes. Index values not identical.")
+
+    return df_1, df_2
+
+
+def check_for_overlapping_index(
+    df_long: pd.DataFrame, df_short: pd.DataFrame
+) -> pd.DataFrame:
+    """Called within overlap_index_check."""
+    if len(set(df_short.index).difference(set(df_long.index))) != 0:
+        raise ValueError("Cannot compare dataframes. Index values do not overlap.")
+    else:
+        df_long = df_long.reindex(df_short.index)
         print(
-            "Successfully compared. Dataframes are NOT equal.\n",
-            f"Differences in:\n\n{df_diff.sum()}",
+            f"INFO: DF 1 has {len(df_long) - len(df_short)} more rows than DF 2.",
+            "Only the overlapping subset is compared.",
         )
 
-
-# df1 = pd.read_csv("./loeb_segments_2020-05-19-11-00-25.csv")
-# df2 = pd.read_csv("./loeb_segments_2020-05-12-06-41-07.csv")
-
-
-def main():
-    df1_checked, df2_checked = check(df1, df2)
-    compare(df1_checked, df2_checked)
-
-
-if __name__ == "__main__":
-    main()
+    return df_long, df_short
