@@ -9,7 +9,7 @@ There are checks for an identical structure but if row count differs while the i
 ## WIP - Up next
 
 - [ ] Check if abs or rel paths makes more sense
-- [ ] Add more tests
 - [ ] Add XLSX support
-- [ ] Add an extra argument to enable dropping certain columns
 - [ ] The try-execpt block is a workaround so that i can import the functions into other modules ... -> see medium blogpost for that, maybe
+- [ ] Add Licence
+- [ ] ...
