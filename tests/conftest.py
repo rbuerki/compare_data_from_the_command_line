@@ -51,5 +51,9 @@ def df_1_extended():
     return pd.DataFrame(data)
 
 
-# print(df_1_extended().shape)
-# print(df_1_base().shape)
+# df_1 = df_1_base()
+# df_1.to_csv("df_1_file.csv", index=False)
+# df_1_ex = df_1_extended()
+# df_1_ex.to_csv("df_1_ex_file.csv", index=False)
+# df_2 = df_2_base()
+# df_2.to_csv("df_2_file.csv", index=False)
