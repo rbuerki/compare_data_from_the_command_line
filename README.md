@@ -1,4 +1,4 @@
-# Compare DataFrames From The Command Line
+# Compare Data From The Command Line
 (Small side project, June 2020)
 
 This application loads tabular data from file into pandas dataframes and compares them for differences. This is usefull if you want to check for data consistency after dumping data from a DB or running an ETL pipeline.
