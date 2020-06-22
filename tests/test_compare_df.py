@@ -2,8 +2,9 @@ from pandas.testing import assert_index_equal
 import pytest
 
 from src.compare_df import (
+    load_files,
     impute_missing_values,
-    compare_if_dataframes_are_equal,
+    check_if_dataframes_are_equal,
     check_for_same_length,
     check_for_same_width,
     check_for_identical_column_names,
@@ -12,14 +13,17 @@ from src.compare_df import (
     check_for_overlapping_index_values,
     handle_different_width,
     check_for_overlapping_column_names,
+    main,
 )
 
 
 # TODO: Test properly, check monkeypatches
-def test_load_files(df_1_base, df_2_base):
-    assert df_1_base.shape == (2, 6)
-    assert df_2_base.shape == (2, 6)
-    # assert list(df_1_base.columns)[:2] == ["date_1", "float_4"]
+def test_load_files():
+    df_1, df_2 = load_files("tests/df_1_file.csv", "tests/df_2_file.csv")
+    assert df_1.shape == (2, 6)
+    assert df_2.shape == (2, 6)
+    assert list(df_1.columns)[:2] == ["date_1", "float_4"]
+    assert list(df_1.iloc[:, 1].values) == [1000.0, 500.0]
 
 
 def test_impute_missing_values(df_1_base, df_2_base):
@@ -28,9 +32,9 @@ def test_impute_missing_values(df_1_base, df_2_base):
     assert (df_1.values == "MISSING").sum() == 2
 
 
-def test_compare_if_dataframes_are_equal(df_1_base, df_2_base):
-    assert compare_if_dataframes_are_equal(df_1_base, df_2_base) is False
-    assert compare_if_dataframes_are_equal(df_1_base, df_1_base)
+def test_check_if_dataframes_are_equal(df_1_base, df_2_base):
+    assert check_if_dataframes_are_equal(df_1_base, df_2_base) is False
+    assert check_if_dataframes_are_equal(df_1_base, df_1_base)
 
 
 def test_check_for_same_length(df_1_base, df_2_base, df_1_extended):
@@ -117,3 +121,20 @@ def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
     ) as e:
         handle_different_width(df_1_base, df_2_base)
         assert e.type is ValueError
+
+
+def test_main(capsys):
+    main("tests/df_1_file.csv", "tests/df_1_file.csv")
+    captured = capsys.readouterr()  # Capture output
+    assert "Successfully compared, dataframes are identical" in captured.out
+
+    main("tests/df_1_file.csv", "tests/df_2_file.csv")
+    captured = capsys.readouterr()  # Capture output
+    assert "Successfully compared. Dataframes are NOT indentical." in captured.out
+
+    main("tests/df_1_file.csv", "tests/df_1_ex_file.csv")
+    captured = capsys.readouterr()  # Capture output
+    assert (
+        "Successfully compared. Matching subsets of dataframes are identical."
+        in captured.out
+    )
