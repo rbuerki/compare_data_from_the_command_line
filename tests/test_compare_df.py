@@ -13,6 +13,7 @@ from src.compare_df import (
     check_for_overlapping_index_values,
     handle_different_width,
     check_for_overlapping_column_names,
+    compare,
     main,
 )
 
@@ -121,6 +122,19 @@ def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
     ) as e:
         handle_different_width(df_1_base, df_2_base)
         assert e.type is ValueError
+
+
+def test_compare(df_1_base, df_2_base, capsys):
+    # NaN values have to be eliminated for this test
+    df_1, df_2 = impute_missing_values(df_1_base, df_2_base)
+
+    compare(df_1, df_1)
+    captured = capsys.readouterr()  # Capture output
+    assert "Matching subsets of DFs are identical" in captured.out
+
+    compare(df_1, df_2)
+    captured = capsys.readouterr()  # Capture output
+    assert "Successfully compared. DFs are NOT indentical." in captured.out
 
 
 def test_main(capsys):
