@@ -1,11 +1,13 @@
 """
-# Compare Pandas DataFrames From The Command Line
+# Compare Data From The Command Line
 
 Author: [Raphael Bürki](https://github.com/rbuerki)\n
 Source: [Github](https://www.linkedin.com/in/raphael-buerki/)
 """
-
+import argparse
+import sys
 from typing import Tuple
+
 import pandas as pd
 
 
@@ -14,7 +16,11 @@ def load_files(path_1: str, path_2: str) -> Tuple[pd.DataFrame]:
     dataframes = []
     for path in [path_1, path_2]:
         for separator in [",", ";", "\t", "|"]:
-            df = pd.read_csv(path, sep=f"{separator}", engine="python",)
+            try:
+                df = pd.read_csv(path, sep=f"{separator}", engine="python",)
+            except FileNotFoundError:
+                print(f"Sorry, file not found: '{path}'")
+                sys.exit()
             if len(df.columns) > 1:
                 break
         print(f"DF loaded, with shape {df.shape}")
@@ -76,7 +82,7 @@ def handle_different_length(
         assert (
             check_for_identical_index_values(df_1, df_2) is False
         ), "Something strange happened ..."
-        raise ValueError("Cannot compare dataframes. Index values are not identical.")
+        raise ValueError("Cannot compare DFs. Index values are not identical.")
 
     return df_1, df_2
 
@@ -91,7 +97,7 @@ def check_for_overlapping_index_values(
     """
     len_df_long_orig = len(df_long)
     if len(set(df_short.index).difference(set(df_long.index))) != 0:
-        raise ValueError("Cannot compare dataframes. Index values do not overlap.")
+        raise ValueError("Cannot compare DFs. Index values do not overlap.")
     else:
         df_long = df_long.reindex(df_short.index)
         print(
@@ -120,7 +126,7 @@ def handle_different_width(
         assert (
             check_for_identical_column_names(df_1, df_2) is False
         ), "Something strange happened ..."
-        raise ValueError("Cannot compare dataframes. Column names are not identical.")
+        raise ValueError("Cannot compare DFs. Column names are not identical.")
 
     return df_1, df_2
 
@@ -135,7 +141,7 @@ def check_for_overlapping_column_names(
     """
     width_df_wide_orig = df_wide.shape[1]
     if len(set(df_slim.columns).difference(set(df_wide.columns))) != 0:
-        raise ValueError("Cannot compare dataframes. Column names do not overlap.")
+        raise ValueError("Cannot compare DFs. Column names do not overlap.")
     else:
         df_wide = df_wide[df_slim.columns]
         print(
@@ -147,19 +153,34 @@ def check_for_overlapping_column_names(
 
 
 def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
-    # TODO: Write a proper docstring
-    """Note we do not check for identical dtypes in the individual columns,
-    but only for identical values (because NaN values could alter that, even
-    after they have been eliminated in the previous steps).
+    """Compare if dataframe values are identical, if not, print a summary of the
+    differences.
+
+    Note: We do no longer check for identical dtypes in the individual columns,
+    but only for identical values. This is because NaN values in a longer / wider
+    dataframe can alter dtypes even after having been eliminated during
+    previous steps.
     """
     if (df_1 != df_2).sum().sum() == 0:
-        print("Successfully compared. Matching subsets of dataframes are identical.")
+        print("Successfully compared. Matching subsets of DFs are identical.")
     else:
         df_diff = df_1 != df_2
         print(
-            "Successfully compared. Dataframes are NOT indentical.\n",
-            f"Differences in:\n\n{df_diff.sum()}",
+            "Successfully compared. DFs are NOT indentical.\n",
+            f"Count of differences per column:\n\n{df_diff.sum()}",
         )
+
+
+arg_parser = argparse.ArgumentParser(
+    description="".join(
+        [
+            "Load the content of two csv-files into Pandas DataFrames ",
+            "and compare them or their matching subsets.",
+        ]
+    )
+)
+arg_parser.add_argument("Path_1", help="Path to the first file", type=str)
+arg_parser.add_argument("Path_2", help="Path to the second file", type=str)
 
 
 def main(path_1: str, path_2: str):
@@ -167,21 +188,21 @@ def main(path_1: str, path_2: str):
     df_1, df_2 = impute_missing_values(df_1, df_2)
 
     if check_if_dataframes_are_equal(df_1, df_2):
-        print("Successfully compared, dataframes are identical.")
+        print("Successfully compared, DFs are identical.")
     else:
         if check_for_same_length(df_1, df_2):
             if check_for_identical_index_values(df_1, df_2) is False:
-                raise AssertionError("Message xy")  # TODO
-            # else:
-            #     pass
+                raise AssertionError(
+                    "Cannot compare DFs. Index values are not identical."
+                )
         else:
             df_1, df_2 = handle_different_length(df_1, df_2)
 
         if check_for_same_width(df_1, df_2):
-            if check_for_identical_index_values(df_1, df_2) is False:
-                raise AssertionError("Message yz")  # TODO
-            # else:
-            #     pass
+            if check_for_identical_column_names(df_1, df_2) is False:
+                raise AssertionError(
+                    "Cannot compare DFs. Column names are not identical."
+                )
         else:
             df_1, df_2 = handle_different_width(df_1, df_2)
 
@@ -189,5 +210,8 @@ def main(path_1: str, path_2: str):
 
 
 if __name__ == "__main__":
-    # TODO: Implement ARGPARS
-    main("tests/df_1_file.csv", "tests/df_1_ex_file.csv")
+    args = arg_parser.parse_args()
+    path_1 = args.Path_1
+    path_2 = args.Path_2
+
+    main(path_1, path_2)
