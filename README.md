@@ -1,25 +1,48 @@
 # Compare Data From The Command Line
-(Small side project, June 2020)
 
-This application loads tabular data from file into pandas dataframes and compares them for differences. This is usefull if you want to check for data consistency after dumping data from a DB or running an ETL pipeline.
+(A small side project, June 2020)
 
-Simply pass the names of / rel path to 2 CSV-files as arguments.
+## Intro
 
-There are checks for an identical structure but if row count differs while the indices are overlapping the matching subselection is compared.
+This application loads tabular data from two CSV-files into pandas dataframes and compares the data for differences. If differences are found, it prints a summary with the count of differing values per column.
 
-## WIP - Up next
+### What for?
 
+_And what's so special about this? Why not just use Pandas built-in `df.equals(df)` functionality or perfrom a boolean check with `(df != df).any()`?_
 
-- [ ] Clean up the TODOs
-- [ ] The try-execpt block is a workaround so that i can import the functions into other modules ... -> see medium blogpost for that, maybe, but I think I solved it here
-- [ ] Add XLSX support
-- [ ] Add Licence
-- [ ] ...
+Now, first, here we've got a command line interface, making it a very handy tool for a (super) quick check. But what makes it really special, is it's ability to handle dataframes of different size. (The aforementioned pandas functions don't do that.) So, if one dataframe is wider and / or longer than the other, the app checks for overlapping sections in the index and columns list and compares those sections only.
 
+This is convenient if, for example, you want to compare data from different ETL pipepline runs where new data is added with each dump. Now you can make sure that the handling of the older datapoints ist consistent.
+
+### Behaviour, Functionality
+
+By design, this means that index values and column names have to be consistent. If these change the comparison will fail. (One consequence: New datapoints have to be assigned to new index values.)
+
+There are two equality checks in this app. The first is run for dataframes of identical shape with the Pandas' `pd.equals()` function. This is a "strict" comparison that also takes into account the datatypes of the values.
+
+If dataframes are not of the same size, as second check is run after some data handling, this time with a boolean comparison. That one is less strict and compares values indipendent of their datatypes. This is necessary because the handling can change datatypes (especially if you have NaN values in your dataframes). Be aware of that.
+
+## Installation and Usage
+
+Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df.py` file in the `src/` folder of this repo to your local machine and make it available whereever you need it.
+
+Then you can use it from the command line, passing the path / names of the two CSV-files containing the data that you want to compare:
+
+```python
+python compare_df.py {source_file_1} {source_file_2}
+```
+
+You'll need Python >= 3.6 and a "contemporary" version of Pandas. ;-)
 
 ## Aknowledgements / Resources
 
-This project was essentially a playground to experiment with test driven development and for working with a CLI. This resources got me started:
+This project was essentially a little playground for experimenting with test driven development and for working with a CLI. The following resources got me started:
 
 - [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
 - [Article on Unit Testing With Pytest](https://realpython.com/pytest-python-testing/) also on RealPython
+
+
+## TODO - Up next
+
+- [ ] Add XLSX support
+- [ ] Add a setup.py
