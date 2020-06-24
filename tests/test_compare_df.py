@@ -18,7 +18,6 @@ from src.compare_df import (
 )
 
 
-# TODO: Test properly, check monkeypatches
 def test_load_files():
     df_1, df_2 = load_files("tests/df_1_file.csv", "tests/df_2_file.csv")
     assert df_1.shape == (2, 6)
@@ -79,7 +78,9 @@ def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
     df_1, df_2 = handle_different_length(df_1_base, df_1_extended)
     assert len(df_1) == len(df_2)
 
-    with pytest.raises(AssertionError, match="Something strange happened ...") as e:
+    with pytest.raises(
+        AssertionError, match="Something strange happened ..."
+    ) as e:
         handle_different_length(df_1_base, df_2_base)
         assert e.type is AssertionError
 
@@ -112,7 +113,9 @@ def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
     df_1, df_2 = handle_different_width(df_1_base, df_1_extended)
     assert df_1.shape[1] == df_2.shape[1]
 
-    with pytest.raises(AssertionError, match="Something strange happened ...") as e:
+    with pytest.raises(
+        AssertionError, match="Something strange happened ..."
+    ) as e:
         handle_different_width(df_1_base, df_2_base)
         assert e.type is AssertionError
 
@@ -149,5 +152,16 @@ def test_main(capsys):
     main("tests/df_1_file.csv", "tests/df_1_ex_file.csv")
     captured = capsys.readouterr()  # Capture output
     assert (
-        "Successfully compared. Matching subsets of DFs are identical." in captured.out
+        "Successfully compared. Matching subsets of DFs are identical."
+        in captured.out
     )
+
+    main("tests/df_1_file.csv", "tests/df_1_empty_row_file.csv")
+    captured = capsys.readouterr()  # Capture output
+    assert "Successfully compared. DFs are NOT indentical." in captured.out
+
+    with pytest.raises(
+        ValueError, match="Cannot compare DFs. Column names are not identical."
+    ) as e:
+        main("tests/df_1_file.csv", "tests/df_1_alt_col_file.csv")
+        assert e.type is ValueError
