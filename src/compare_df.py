@@ -1,8 +1,8 @@
 """
 # Compare Data From The Command Line
 
-Author: [Raphael Bürki](https://github.com/rbuerki)\n
-Source: [Github](https://www.linkedin.com/in/raphael-buerki/)
+Author: [Raphael Bürki](https://www.linkedin.com/in/raphael-buerki/)\n
+Source: [Github](https://github.com/rbuerki/compare_data_from_the_command_line/)
 """
 import argparse
 import sys
@@ -39,7 +39,9 @@ def impute_missing_values(
     return df_1, df_2
 
 
-def check_if_dataframes_are_equal(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+def check_if_dataframes_are_equal(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> bool:
     """Compare if the two dataframes are equal, return a boolean value."""
     return df_1.equals(df_2)
 
@@ -54,12 +56,16 @@ def check_for_same_width(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return df_1.shape[1] == df_2.shape[1]
 
 
-def check_for_identical_index_values(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+def check_for_identical_index_values(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> bool:
     """Check if the (ordered) indexes are identical, return a boolean value."""
     return set(df_1.index) == set(df_2.index)
 
 
-def check_for_identical_column_names(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+def check_for_identical_column_names(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> bool:
     """Check if the (ordered) columns are identical, return a boolean value."""
     return list(df_1.columns) == list(df_2.columns)
 
@@ -192,7 +198,7 @@ def main(path_1: str, path_2: str):
     else:
         if check_for_same_length(df_1, df_2):
             if check_for_identical_index_values(df_1, df_2) is False:
-                raise AssertionError(
+                raise ValueError(
                     "Cannot compare DFs. Index values are not identical."
                 )
         else:
@@ -200,7 +206,7 @@ def main(path_1: str, path_2: str):
 
         if check_for_same_width(df_1, df_2):
             if check_for_identical_column_names(df_1, df_2) is False:
-                raise AssertionError(
+                raise ValueError(
                     "Cannot compare DFs. Column names are not identical."
                 )
         else:
