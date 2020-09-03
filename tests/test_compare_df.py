@@ -1,3 +1,4 @@
+import numpy as np
 from pandas.testing import assert_index_equal
 import pytest
 
@@ -19,11 +20,31 @@ from src.compare_df import (
 
 
 def test_load_files():
-    df_1, df_2 = load_files("tests/df_1_file.csv", "tests/df_2_file.csv")
+    df_1, df_2 = load_files("tests/df_1_file.csv", "tests/df_2_file.csv", None)
     assert df_1.shape == (2, 6)
     assert df_2.shape == (2, 6)
-    assert list(df_1.columns)[:2] == ["date_1", "float_4"]
-    assert list(df_1.iloc[:, 1].values) == [1000.0, 500.0]
+    assert list(df_1.columns)[:2] == ["date_1", "int_2"]
+    assert list(df_1.iloc[:, -1].values) == ["hello", np.NaN]
+
+
+def test_load_files_with_valid_index_col():
+    df_1, df_2 = load_files(
+        "tests/df_1_file.csv", "tests/df_2_file.csv", "str_3"
+    )
+    assert df_1.shape == (2, 5)
+    assert df_2.shape == (2, 5)
+    assert list(df_1.columns)[:2] == ["date_1", "int_2"]
+    assert list(df_1.index.values) == ["row1", "row2"]
+
+
+def test_load_files_with_invalid_index_col(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        df_1, df_2 = load_files(
+            "tests/df_1_file.csv", "tests/df_2_file.csv", "date_1"
+        )
+        captured = capsys.readouterr()
+        assert "Error. Column date_1" in captured.out
+        assert exc_info.type is SystemExit
 
 
 def test_impute_missing_values(df_1_base, df_2_base):

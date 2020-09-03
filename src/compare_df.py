@@ -4,36 +4,85 @@
 Author: [Raphael Bürki](https://www.linkedin.com/in/raphael-buerki/)\n
 Source: [Github](https://github.com/rbuerki/compare_data_from_the_command_line/)
 """
+
 import argparse
 import sys
-from typing import Tuple
+from typing import Optional, Tuple
 
 import pandas as pd
 
 
-def load_files(path_1: str, path_2: str) -> Tuple[pd.DataFrame]:
+def load_files(
+    path_1: str, path_2: str, index_col: Optional[str]
+) -> Tuple[pd.DataFrame]:
     """Load data from files and return the dataframes."""
     dataframes = []
     for path in [path_1, path_2]:
         for separator in [",", ";", "\t", "|"]:
             try:
-                df = pd.read_csv(path, sep=f"{separator}", engine="python",)
+                df = pd.read_csv(
+                    path, sep=f"{separator}", engine="python",
+                )  # TODO: engine doesn't always fit the bill
             except FileNotFoundError:
                 print(f"Sorry, file not found: '{path}'")
                 sys.exit()
             if len(df.columns) > 1:
                 break
-        print(f"DF loaded, with shape {df.shape}")
-        df = df.sort_index()
-        df = df[sorted(list(df.columns))]
-        dataframes.append(df.sort_index())
+        print(f"DF loaded, with original shape of {df.shape}")
+        if index_col:
+            df = _set_and_sort_index_col(df, index_col)
+        else:
+            df = df.sort_index()
+        dataframes.append(df)
     return dataframes[0], dataframes[1]
+
+
+def _set_and_sort_index_col(df: pd.DataFrame, index_col: str) -> pd.DataFrame:
+    """
+    If an index_col param is passed, check if that index_col has unique
+    values only. If not, reject and exit. If yes, set to index and sort.
+    This function is called within the load function.
+    """
+    if df[index_col].duplicated().sum() == 0:
+        df = df.set_index(index_col, drop=True).sort_index()
+        return df
+    else:
+        print(
+            f"Error. Column {index_col} has duplicate values",
+            "and cannot be used as dataframe index.",
+        )
+        sys.exit()
+
+
+# def check_initial_structural_differences(
+#     df_1: pd.DataFrame, df_2: pd.DataFrame
+# ):
+#     """Check if index, columns, datatypes are equal and
+#     print info to console.
+#     """
+#     shape_check = df_1.shape == df_2.shape
+#     col_check = df_1.columns == df_2.columns
+#     idx_check = df_1.index == df_2.index
+#     dtype_check = df_1.dtypes == df_2.dtypes
+
+#     if not shape_check or not dtype_check:
+#         print("\nInitial quickcheck for structural differences:")
+#         print(f"Dataframe Shapes are identical: {shape_check}")
+#         print(f"Column names are identical: {col_check}")
+#         print(f"Indexes are identical: {idx_check}")
+#         print(f"Data types are identical: {dtype_check}")
+#         print("We will try to handle that ...\n")
+
+# TODO sort columns, only if you are sure that cols overlapp
+# df = df[sorted(list(df.columns))]
 
 
 def impute_missing_values(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Impute any missing values with a str, because they can mess up comparisons."""
+    """Impute any missing values with a str, because they can
+    mess up boolean comparisons.
+    """
     df_1.fillna("MISSING", inplace=True)
     df_2.fillna("MISSING", inplace=True)
     return df_1, df_2
@@ -185,12 +234,21 @@ arg_parser = argparse.ArgumentParser(
         ]
     )
 )
-arg_parser.add_argument("Path_1", help="Path to the first file", type=str)
-arg_parser.add_argument("Path_2", help="Path to the second file", type=str)
+arg_parser.add_argument("path_1", help="Path to the first file", type=str)
+arg_parser.add_argument("path_2", help="Path to the second file", type=str)
+arg_parser.add_argument(
+    "-i",
+    "--index_col",
+    help=(
+        "Name of column to use as index, dropping the original index.",
+        "Defaults to None.",
+    ),
+    default=None,
+)
 
 
-def main(path_1: str, path_2: str):
-    df_1, df_2 = load_files(path_1, path_2)
+def main(path_1: str, path_2: str, index_col: Optional[str]):
+    df_1, df_2 = load_files(path_1, path_2, index_col)
     df_1, df_2 = impute_missing_values(df_1, df_2)
 
     if check_if_dataframes_are_equal(df_1, df_2):
@@ -217,7 +275,9 @@ def main(path_1: str, path_2: str):
 
 if __name__ == "__main__":
     args = arg_parser.parse_args()
-    path_1 = args.Path_1
-    path_2 = args.Path_2
 
-    main(path_1, path_2)
+    path_1 = args.path_1
+    path_2 = args.path_2
+    index_col = args.index_col
+
+    main(path_1, path_2, index_col)
