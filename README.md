@@ -44,5 +44,8 @@ This project was essentially a little playground for experimenting with test dri
 
 ## TODO - Up next
 
+- [ ] Improve column sort (see note in file)
+- [ ] Improve handling of non-identical indexes
+- [ ] Add dtype enforcement for overlapping columns
 - [ ] Add XLSX support
 - [ ] Add a setup.py
