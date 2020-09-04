@@ -128,6 +128,34 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return list(df_1.dtypes.values) == list(df_1.dtypes.values)
 
 
+def get_user_input(case: str) -> str:
+
+    if case == "columns":
+        STR_VARS = ["width", "column names", "columns"]
+    elif case == "dtypes":
+        STR_VARS = ["column names", "dtypes", "columns"]
+
+    INPUT_STRING = (
+        f"The dataframes have the same {STR_VARS[0]}, but the "
+        f"{STR_VARS[1]} differ. If you want to drop the "
+        f"non-overlapping {STR_VARS[2]} for the comparison, "
+        f"please press 'y'. If you think the data structure "
+        f"is identical and want to enforce the {STR_VARS[1]} to "
+        f"be identical for a full comparison, please press 'n'."
+    )
+
+    user_input = None
+    while user_input != "y" or user_input != "n":
+        user_input = input(INPUT_STRING)
+        if user_input == "y":
+            break
+        elif user_input == "n":
+            return user_input
+            break
+            print("Please press 'y' or 'n'.")
+    return user_input
+
+
 def handle_different_length(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
