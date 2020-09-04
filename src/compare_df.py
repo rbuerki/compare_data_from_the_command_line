@@ -139,9 +139,10 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
 def handle_different_length(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """When dataframes do not have the same length but the index values are overlapping,
-    return the overlapping part of the longer dataframe only to make a comparison
-    possible. If index values do not overlapp raise a value error.
+    """When dataframes do not have the same length but the index values
+    are overlapping, return the overlapping part of the longer dataframe
+    only to make a comparison possible. If index values do not overlap
+    raise a value error.
     """
     if len(df_1) > len(df_2):
         df_1 = check_for_overlapping_index_values(df_1, df_2)
@@ -163,9 +164,10 @@ def check_for_overlapping_index_values(
     df_long: pd.DataFrame, df_short: pd.DataFrame
 ) -> pd.DataFrame:
     """Check if the index values of the longer dataframe fully overlap
-    with the values of the shorter dataframe, then reindex the longer dataframe,
-    so that it is shortened to match the index values of the shorter dataframe.
-    This function is called within `handle_different_length` function.
+    with the values of the shorter dataframe, then reindex the longer
+    dataframe, so that it is shortened to match the index values of
+    the shorter dataframe. This function is called within the
+    `handle_different_length` function.
     """
     len_df_long_orig = len(df_long)
     if len(set(df_short.index).difference(set(df_long.index))) != 0:
@@ -173,7 +175,8 @@ def check_for_overlapping_index_values(
     else:
         df_long = df_long.reindex(df_short.index)
         print(
-            f"INFO: DF 1 has {len_df_long_orig - len(df_short)} rows more than DF 2.",
+            f"INFO: DF 1 has {len_df_long_orig - len(df_short)}",
+            "rows more than DF 2.",
             "Only the overlapping subset is compared.",
         )
 
@@ -183,9 +186,10 @@ def check_for_overlapping_index_values(
 def handle_different_width(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """When dataframes do not have the same witdh but the column names are overlapping,
-    return the overlapping part of the wider dataframe only to make a comparison
-    possible. If column names do not overlapp raise a value error.
+    """When dataframes do not have the same witdh but the column names
+    are overlapping, return the overlapping part of the wider dataframe
+    only to make a comparison possible. If column names do not overlap
+    raise a value error.
     """
     if df_1.shape[1] > df_2.shape[1]:
         df_1 = check_for_overlapping_column_names(df_1, df_2)
@@ -207,9 +211,10 @@ def check_for_overlapping_column_names(
     df_wide: pd.DataFrame, df_slim: pd.DataFrame
 ) -> pd.DataFrame:
     """Check if the column names of the longer dataframe fully overlap
-    with the values of the shorter dataframe, then reindex the wider dataframe,
-    so that it is slimmed down to match the column names of the slimmer dataframe.
-    This function is called within the `handle_different_width` function.
+    with the values of the shorter dataframe, then reindex the wider
+    dataframe, so that it is slimmed down to match the column names of
+    the slimmer dataframe. This function is called within the
+    `handle_different_width` function.
     """
     width_df_wide_orig = df_wide.shape[1]
     if len(set(df_slim.columns).difference(set(df_wide.columns))) != 0:
@@ -217,21 +222,21 @@ def check_for_overlapping_column_names(
     else:
         df_wide = df_wide[df_slim.columns]
         print(
-            f"INFO: DF 1 has {width_df_wide_orig - len(df_slim)} columns more than DF 2.",
+            f"INFO: DF 1 has {width_df_wide_orig - len(df_slim)}",
+            "columns more than DF 2.",
             "Only the overlapping subset is compared.",
         )
-
     return df_wide
 
 
 def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
-    """Compare if dataframe values are identical, if not, print a summary of the
-    differences.
+    """Compare if dataframe values are identical, if not, print a
+    summary of the differences.
 
-    Note: We do no longer check for identical dtypes in the individual columns,
-    but only for identical values. This is because NaN values in a longer / wider
-    dataframe can alter dtypes even after having been eliminated during
-    previous steps.
+    Note: We do no longer check for identical dtypes in the
+    individual columns, but only for identical values. This is because
+    NaN values in a longer / wider dataframe can alter dtypes even
+    after having been eliminated during previous steps.
     """
     if (df_1 != df_2).sum().sum() == 0:
         print("Successfully compared. Matching subsets of DFs are identical.")
