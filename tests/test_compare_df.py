@@ -2,26 +2,15 @@ import numpy as np
 from pandas.testing import assert_index_equal
 import pytest
 
-from src.compare_df import (
-    load_files,
-    impute_missing_values,
-    check_if_dataframes_are_equal,
-    check_for_same_length,
-    check_for_same_width,
-    check_for_identical_column_names,
-    check_for_identical_index_values,
-    handle_different_length,
-    check_for_overlapping_index_values,
-    handle_different_width,
-    check_for_overlapping_column_names,
-    check_for_identical_dtypes,
-    compare,
-    main,
-)
+from src import foos  # noqa
+
+# from src.__main__ import main  # noqa
 
 
 def test_load_files():
-    df_1, df_2 = load_files("tests/df_1_file.csv", "tests/df_2_file.csv", None)
+    df_1, df_2 = foos.load_files(
+        "tests/df_1_file.csv", "tests/df_2_file.csv", None
+    )
     assert df_1.shape == (2, 6)
     assert df_2.shape == (2, 6)
     assert list(df_1.columns)[:2] == ["date_1", "int_2"]
@@ -29,7 +18,7 @@ def test_load_files():
 
 
 def test_load_files_with_valid_index_col():
-    df_1, df_2 = load_files(
+    df_1, df_2 = foos.load_files(
         "tests/df_1_file.csv", "tests/df_2_file.csv", "str_3"
     )
     assert df_1.shape == (2, 5)
@@ -40,7 +29,7 @@ def test_load_files_with_valid_index_col():
 
 def test_load_files_with_invalid_index_col(capsys):
     with pytest.raises(SystemExit) as exc_info:
-        df_1, df_2 = load_files(
+        df_1, df_2 = foos.load_files(
             "tests/df_1_file.csv", "tests/df_2_file.csv", "date_1"
         )
         captured = capsys.readouterr()
@@ -50,121 +39,129 @@ def test_load_files_with_invalid_index_col(capsys):
 
 def test_impute_missing_values(df_1_base, df_2_base):
     assert df_1_base.isnull().sum().sum() == 2
-    df_1, df_2 = impute_missing_values(df_1_base, df_2_base)
+    df_1, df_2 = foos.impute_missing_values(df_1_base, df_2_base)
     assert (df_1.values == "MISSING").sum() == 2
 
 
 def test_check_if_dataframes_are_equal(df_1_base, df_2_base):
-    assert check_if_dataframes_are_equal(df_1_base, df_2_base) is False
-    assert check_if_dataframes_are_equal(df_1_base, df_1_base)
+    assert foos.check_if_dataframes_are_equal(df_1_base, df_2_base) is False
+    assert foos.check_if_dataframes_are_equal(df_1_base, df_1_base)
 
 
 def test_check_for_same_length(df_1_base, df_2_base, df_1_extended):
-    assert check_for_same_length(df_1_base, df_1_extended) is False
-    assert check_for_same_length(df_1_base, df_2_base)
+    assert foos.check_for_same_length(df_1_base, df_1_extended) is False
+    assert foos.check_for_same_length(df_1_base, df_2_base)
 
 
 def test_check_for_same_width(df_1_base, df_1_extended):
-    assert check_for_same_width(df_1_base, df_1_extended)
+    assert foos.check_for_same_width(df_1_base, df_1_extended)
     df_1_extended = df_1_extended[list(df_1_extended.columns)[1:]]
-    assert check_for_same_width(df_1_base, df_1_extended) is False
+    assert foos.check_for_same_width(df_1_base, df_1_extended) is False
 
 
 def test_check_for_identical_column_names(df_1_base, df_1_extended):
-    assert check_for_identical_column_names(df_1_base, df_1_extended)
+    assert foos.check_for_identical_column_names(df_1_base, df_1_extended)
     df_1_extended.columns = ["a", "b", "c", "d", "e", "f"]
-    assert check_for_identical_column_names(df_1_base, df_1_extended) is False
+    assert (
+        foos.check_for_identical_column_names(df_1_base, df_1_extended) is False
+    )
 
 
 def test_check_for_identical_index_values(df_1_base, df_2_base, df_1_extended):
-    assert check_for_identical_index_values(df_1_base, df_2_base)
-    assert check_for_identical_index_values(df_1_base, df_1_extended) is False
+    assert foos.check_for_identical_index_values(df_1_base, df_2_base)
+    assert (
+        foos.check_for_identical_index_values(df_1_base, df_1_extended) is False
+    )
 
 
 def test_check_for_overlapping_index_values(df_1_base, df_1_extended):
-    df_1_extended = check_for_overlapping_index_values(df_1_extended, df_1_base)
+    df_1_extended = foos.check_for_overlapping_index_values(
+        df_1_extended, df_1_base
+    )
     assert_index_equal(df_1_extended.index, df_1_base.index)
 
     df_1_base.index = [1, 3]
     with pytest.raises(
         ValueError, match="Cannot compare DFs. Index values do not overlap."
     ) as e:
-        check_for_overlapping_index_values(df_1_extended, df_1_base)
+        foos.check_for_overlapping_index_values(df_1_extended, df_1_base)
         assert e.type is ValueError
 
 
 def test_check_for_identical_dtypes(df_1_base, df_2_base):
-    assert check_for_identical_dtypes(df_1_base, df_2_base)
+    assert foos.check_for_identical_dtypes(df_1_base, df_2_base)
     df_3 = df_1_base.copy()
     df_3["float_4"] = df_3["float_4"].astype(int)
-    assert check_for_identical_dtypes(df_3, df_2_base)
+    assert foos.check_for_identical_dtypes(df_3, df_2_base)
 
 
 def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
-    df_1, df_2 = handle_different_length(df_1_extended, df_1_base)
+    df_1, df_2 = foos.handle_different_length(df_1_extended, df_1_base)
     assert len(df_1) == len(df_2)
 
-    df_1, df_2 = handle_different_length(df_1_base, df_1_extended)
+    df_1, df_2 = foos.handle_different_length(df_1_base, df_1_extended)
     assert len(df_1) == len(df_2)
 
     with pytest.raises(
         AssertionError, match="Something strange happened ..."
     ) as e:
-        handle_different_length(df_1_base, df_2_base)
+        foos.handle_different_length(df_1_base, df_2_base)
         assert e.type is AssertionError
 
     df_2_base.index = [0, 2]
     with pytest.raises(
         ValueError, match="Cannot compare DFs. Index values are not identical."
     ) as e:
-        handle_different_length(df_1_base, df_2_base)
+        foos.handle_different_length(df_1_base, df_2_base)
         assert e.type is ValueError
 
 
 def test_check_for_overlapping_column_names(df_1_base, df_1_extended):
     df_1_base = df_1_base[list(df_1_base.columns)[1:]]
-    df_1_extended = check_for_overlapping_column_names(df_1_extended, df_1_base)
+    df_1_extended = foos.check_for_overlapping_column_names(
+        df_1_extended, df_1_base
+    )
     assert df_1_extended.shape[1] == df_1_base.shape[1]
 
     df_1_base.columns = ["a", "b", "c", "d", "e"]
     with pytest.raises(
         ValueError, match="Cannot compare DFs. Column names do not overlap."
     ) as e:
-        check_for_overlapping_column_names(df_1_extended, df_1_base)
+        foos.check_for_overlapping_column_names(df_1_extended, df_1_base)
         assert e.type is ValueError
 
 
 def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
     df_1_extended = df_1_extended[list(df_1_extended.columns)[1:]]
-    df_1, df_2 = handle_different_width(df_1_extended, df_1_base)
+    df_1, df_2 = foos.handle_different_width(df_1_extended, df_1_base)
     assert df_1.shape[1] == df_2.shape[1]
 
-    df_1, df_2 = handle_different_width(df_1_base, df_1_extended)
+    df_1, df_2 = foos.handle_different_width(df_1_base, df_1_extended)
     assert df_1.shape[1] == df_2.shape[1]
 
     with pytest.raises(
         AssertionError, match="Something strange happened ..."
     ) as e:
-        handle_different_width(df_1_base, df_2_base)
+        foos.handle_different_width(df_1_base, df_2_base)
         assert e.type is AssertionError
 
     df_2_base.columns = ["a", "b", "c", "d", "e", "f"]
     with pytest.raises(
         ValueError, match="Cannot compare DFs. Column names are not identical."
     ) as e:
-        handle_different_width(df_1_base, df_2_base)
+        foos.handle_different_width(df_1_base, df_2_base)
         assert e.type is ValueError
 
 
 def test_compare(df_1_base, df_2_base, capsys):
     # NaN values have to be eliminated for this test
-    df_1, df_2 = impute_missing_values(df_1_base, df_2_base)
+    df_1, df_2 = foos.impute_missing_values(df_1_base, df_2_base)
 
-    compare(df_1, df_1)
+    foos.compare(df_1, df_1)
     captured = capsys.readouterr()  # Capture output
     assert "Matching subsets of DFs are identical" in captured.out
 
-    compare(df_1, df_2)
+    foos.compare(df_1, df_2)
     captured = capsys.readouterr()  # Capture output
     assert "Successfully compared. DFs are NOT indentical." in captured.out
 
