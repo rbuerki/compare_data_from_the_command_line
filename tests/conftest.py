@@ -6,12 +6,14 @@ import pandas as pd
 import pytest
 
 # Append abs path of the module to the sys.path(), solving some import problems
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+)
 
 
 @pytest.fixture
 def df_1_base():
-    """This is the first base dataframes for testing."""
+    """This is the first base df for testing."""
     data = {
         "date_1": ["12.08.1978", "12.08.1978"],
         "int_2": [1, 1],
@@ -39,7 +41,7 @@ def df_2_base():
 
 @pytest.fixture
 def df_1_extended():
-    """This dataframe is like the first base dataframe but with one additional row."""
+    """This df is like the first base df but with one additional row."""
     data = {
         "date_1": ["12.08.1978", "12.08.1978", "18.08.2016"],
         "int_2": [1, 1, np.nan],

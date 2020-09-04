@@ -91,32 +91,49 @@ def impute_missing_values(
 def check_if_dataframes_are_equal(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> bool:
-    """Compare if the two dataframes are equal, return a boolean value."""
+    """Compare if the two dataframes are equal,
+    return a boolean value.
+    """
     return df_1.equals(df_2)
 
 
 def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
-    """Check if the dataframes have the same index length, return a boolean value."""
+    """Check if the dataframes have the same index length, return
+    a boolean value.
+    """
     return df_1.shape[0] == df_2.shape[0]
 
 
 def check_for_same_width(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
-    """Check if the dataframes have the same number of cols, return a boolean value."""
+    """Check if the dataframes have the same number of cols, return
+    a boolean value.
+    """
     return df_1.shape[1] == df_2.shape[1]
 
 
 def check_for_identical_index_values(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> bool:
-    """Check if the (ordered) indexes are identical, return a boolean value."""
+    """Check if the (ordered) indexes are identical, return
+    a boolean value.
+    """
     return set(df_1.index) == set(df_2.index)
 
 
 def check_for_identical_column_names(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> bool:
-    """Check if the (ordered) columns are identical, return a boolean value."""
+    """Check if the (ordered) columns are identical, return
+    a boolean value.
+    """
     return list(df_1.columns) == list(df_2.columns)
+
+
+def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
+    """Check if the dtypes for the columns are identical, return
+    a boolean value. (Can only be True for identical columns.)
+    """
+    return list(df_1.dtypes.values) == list(df_1.dtypes.values)
 
 
 def handle_different_length(
