@@ -46,6 +46,6 @@ This project was essentially a little playground for experimenting with test dri
 
 - [ ] Improve column sort (see note in file)
 - [ ] Improve handling of non-identical indexes
-- [ ] Add dtype enforcement for overlapping columns
+- [ ] Check for TODO string
 - [ ] Add XLSX support
 - [ ] Add a setup.py
