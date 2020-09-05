@@ -1,5 +1,5 @@
 import sys
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import pandas as pd
 
@@ -154,6 +154,59 @@ def get_user_input(case: str) -> str:
             break
             print("Please press 'y' or 'n'.")
     return user_input
+
+
+def enforce_dtype_identity(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """First try to enforce the dtypes of df_1 on df_2, if this is not
+    possible for all columns, try the other way. If that too is not
+    possible for all columns, print a warning. Return both dataframes,
+    one of them transformed (at least on those columns where the dtype
+    change was possible.)"""
+    counter, df_1, df_2 = _align_dtypes(df_1, df_2)
+    if len(counter) > 0:
+        counter, df_2, df_1 = _align_dtypes(df_2, df_1)
+        if len(counter) > 0:
+            problematic_columns = [
+                col
+                for col in df_1.columns
+                if list(df_1.columns).index(col) in counter
+            ]
+            message = (
+                f"Not possible to enforce dtype identity"
+                f"on following column(s): {problematic_columns}."
+                f"We proceed with differing dtypes."
+            )
+            print(message)
+            return df_1, df_2
+        else:
+            return df_1, df_2
+    else:
+        return df_1, df_2
+
+
+def _align_dtypes(
+    df_a: pd.DataFrame, df_b: pd.DataFrame
+) -> Tuple[List(int), pd.DataFrame, pd.DataFrame]:
+    """Try to enforce the dtypes of one dataframe on the other
+    dataframe. Return a list of index values for those columns
+    where it is not possible and the two dataframes (one of them
+    transformed).
+    """
+    counter = []
+    dtypes = [str(x) for x in df_a.dtypes]
+    for i, col, dtype in zip(enumerate(df_b.columns), dtypes):
+        try:
+            if dtype.startswith("date"):
+                df_b[col] = pd.to_datetime(
+                    df_b[col], infer_datetime_format=True
+                )
+            else:
+                df_b[col].astype(dtype)
+        except TypeError:
+            counter.append(i)
+    return counter, df_a, df_b
 
 
 def handle_different_length(
