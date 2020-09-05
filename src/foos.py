@@ -125,7 +125,7 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     """Check if the dtypes for the columns are identical, return
     a boolean value. (Can only be True for identical columns.)
     """
-    return list(df_1.dtypes.values) == list(df_1.dtypes.values)
+    return list(df_1.dtypes.values) == list(df_2.dtypes.values)
 
 
 def get_user_input(case: str) -> str:
@@ -159,54 +159,57 @@ def get_user_input(case: str) -> str:
 def enforce_dtype_identity(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """First try to enforce the dtypes of df_1 on df_2, if this is not
-    possible for all columns, try the other way. If that too is not
-    possible for all columns, print a warning. Return both dataframes,
-    one of them transformed (at least on those columns where the dtype
-    change was possible.)"""
-    counter, df_1, df_2 = _align_dtypes(df_1, df_2)
-    if len(counter) > 0:
-        counter, df_2, df_1 = _align_dtypes(df_2, df_1)
-        if len(counter) > 0:
+    """First try to enforce the dtypes other than 'object' of df_1 on
+    df_2, if this is not possible for all columns, try the other way
+    round. If that too is not possible for all columns, print a warning.
+    Return both dataframes with aligned dtypes where possible.
+    """
+    diff_list, df_a, df_b = _align_dtypes(df_1, df_2)
+    if len(diff_list) == 0:
+        return df_a, df_b
+    else:
+        diff_list, df_b, df_a = _align_dtypes(df_2, df_1)
+        if len(diff_list) == 0:
+            return df_a, df_b
+        else:
             problematic_columns = [
                 col
                 for col in df_1.columns
-                if list(df_1.columns).index(col) in counter
+                if list(df_1.columns).index(col) in diff_list
             ]
             message = (
-                f"Not possible to enforce dtype identity"
-                f"on following column(s): {problematic_columns}."
-                f"We proceed with differing dtypes."
+                f"Not possible to enforce dtype identity "
+                f"on following column(s): {problematic_columns}. "
+                f"We continue with differing dtypes. "
             )
             print(message)
-            return df_1, df_2
-        else:
-            return df_1, df_2
-    else:
-        return df_1, df_2
+            return df_a, df_b
 
 
 def _align_dtypes(
     df_a: pd.DataFrame, df_b: pd.DataFrame
-) -> Tuple[List(int), pd.DataFrame, pd.DataFrame]:
-    """Try to enforce the dtypes of one dataframe on the other
-    dataframe. Return a list of index values for those columns
+) -> Tuple[List[int], pd.DataFrame, pd.DataFrame]:
+    """Try to enforce the dtypes of non-object type of one dataframe 
+    on the other . Return a list of index values for those columns
     where it is not possible and the two dataframes (one of them
     transformed).
     """
-    counter = []
     dtypes = [str(x) for x in df_a.dtypes]
-    for i, col, dtype in zip(enumerate(df_b.columns), dtypes):
+    for col, dtype in zip(df_b.columns, dtypes):
         try:
             if dtype.startswith("date"):
                 df_b[col] = pd.to_datetime(
                     df_b[col], infer_datetime_format=True
                 )
+            elif dtype == "object":
+                pass
             else:
-                df_b[col].astype(dtype)
-        except TypeError:
-            counter.append(i)
-    return counter, df_a, df_b
+                df_b[col] = df_b[col].astype(dtype)
+        except (TypeError, ValueError):
+            pass
+    mask = list(df_b.dtypes.values == df_a.dtypes.values)
+    diff_list = [mask.index(x) for x in mask if x == 0]
+    return diff_list, df_a, df_b
 
 
 def handle_different_length(

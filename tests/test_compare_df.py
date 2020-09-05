@@ -89,16 +89,37 @@ def test_check_for_overlapping_index_values(df_1_base, df_1_extended):
 
 
 def test_check_for_identical_dtypes(df_1_base, df_2_base):
-    assert foos.check_for_identical_dtypes(df_1_base, df_2_base)
-    df_3 = df_1_base.copy()
-    df_3["float_4"] = df_3["float_4"].astype(int)
-    assert foos.check_for_identical_dtypes(df_3, df_2_base)
+    assert foos.check_for_identical_dtypes(df_1_base, df_1_base)
+    assert foos.check_for_identical_dtypes(df_1_base, df_2_base) is False
 
 
-def test_get_user_input(monkeypatch, capsys):
+def test_get_user_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
     user_input = foos.get_user_input("dtypes")
     assert user_input == "y"
+
+
+def test_align_dtypes(df_1_base, df_2_base):
+    diff_list, _, _ = foos._align_dtypes(df_1_base, df_2_base)
+    assert len(diff_list) == 1
+    df_3 = df_1_base.copy()
+    df_3["float_4"] = df_3["float_4"].astype(int)
+    df_3["date_1"] = df_3["date_1"].astype(object)
+    diff_list, _, _ = foos._align_dtypes(df_1_base, df_3)
+    assert len(diff_list) == 0
+
+
+def test_enforce_dtype_identity(df_1_base, df_2_base, capsys):
+    df_1, df_2 = foos.enforce_dtype_identity(df_1_base, df_2_base)
+    assert list(df_1.dtypes.values) == list(df_2.dtypes.values)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    df_3 = df_1_base.copy()
+    df_3.iloc[0, 3] = "str"
+    df_1, df_3 = foos.enforce_dtype_identity(df_1_base, df_3)
+    assert list(df_1.dtypes.values) != list(df_3.dtypes.values)
+    captured = capsys.readouterr()
+    assert "float_4" in captured.out
 
 
 def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
