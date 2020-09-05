@@ -122,6 +122,17 @@ def test_enforce_dtype_identity(df_1_base, df_2_base, capsys):
     assert "float_4" in captured.out
 
 
+def test_get_subsets(df_1_base, df_1_extended):
+    common, only_1, only_2 = foos.get_subsets("index", df_1_base, df_1_extended)
+    assert (only_1 == set()) and (only_2 == set([2]))
+    df_3 = df_1_extended.copy()
+    colnames = list(df_3.columns)
+    colnames[0] = "xxx"
+    df_3.columns = colnames
+    common, only_1, only_2 = foos.get_subsets("columns", df_1_base, df_3)
+    assert (only_1 == set(["date_1"])) and (only_2 == set(["xxx"]))
+
+
 def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
     df_1, df_2 = foos.handle_different_length(df_1_extended, df_1_base)
     assert len(df_1) == len(df_2)

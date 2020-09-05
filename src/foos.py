@@ -65,7 +65,7 @@ def _set_and_sort_index_col(df: pd.DataFrame, index_col: str) -> pd.DataFrame:
 #         print(f"Data types are identical: {dtype_check}")
 #         print("We will try to handle that ...\n")
 
-# TODO sort columns, only if you are sure that cols overlapp
+# TODO sort columns, only if you are sure that cols are ident
 # df = df[sorted(list(df.columns))]
 
 
@@ -129,7 +129,9 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
 
 
 def get_user_input(case: str) -> str:
-
+    """TODO - input_string probably wrong for dtyes, I wont remove
+    non matching cols
+    """
     if case == "columns":
         STR_VARS = ["width", "column names", "columns"]
     elif case == "dtypes":
@@ -189,8 +191,8 @@ def enforce_dtype_identity(
 def _align_dtypes(
     df_a: pd.DataFrame, df_b: pd.DataFrame
 ) -> Tuple[List[int], pd.DataFrame, pd.DataFrame]:
-    """Try to enforce the dtypes of non-object type of one dataframe 
-    on the other . Return a list of index values for those columns
+    """Try to enforce the dtypes of non-object type of one dataframe
+    on the other. Return a list of index values for those columns
     where it is not possible and the two dataframes (one of them
     transformed).
     """
@@ -210,6 +212,25 @@ def _align_dtypes(
     mask = list(df_b.dtypes.values == df_a.dtypes.values)
     diff_list = [mask.index(x) for x in mask if x == 0]
     return diff_list, df_a, df_b
+
+
+def _get_subsets(
+    dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[set]:
+    """Depending on passed dimension, return three separate subset of
+    columns or index of the dataframes, the first consisting of common
+    values, the second of values exclusive to the first dataframe, the
+    third of values exclusive to the second dataframe.
+    """
+    if dim == "columns":
+        common = set(df_1.columns).intersection(set(df_2.columns))
+        only_1 = set(df_1.columns).difference(set(df_2.columns))
+        only_2 = set(df_2.columns).difference(set(df_1.columns))
+    elif dim == "index":
+        common = set(df_1.index).intersection(set(df_2.index))
+        only_1 = set(df_1.index).difference(set(df_2.index))
+        only_2 = set(df_2.index).difference(set(df_1.index))
+    return common, only_1, only_2
 
 
 def handle_different_length(
