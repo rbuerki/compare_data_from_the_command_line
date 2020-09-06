@@ -6,7 +6,7 @@ import pandas as pd
 
 def load_files(
     path_1: str, path_2: str, index_col: Optional[str]
-) -> Tuple[pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load data from files and return the dataframes."""
     dataframes = []
     for path in [path_1, path_2]:
@@ -214,22 +214,29 @@ def _align_dtypes(
     return diff_list, df_a, df_b
 
 
+def handle_different_values(
+    dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[pd.DataFrame]:
+    """x"""
+    common, only_1, only_2 = _get_subsets(dim, df_1, df_2)
+
+
 def _get_subsets(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
-) -> Tuple[set]:
+) -> Tuple[set, set, set]:
     """Depending on passed dimension, return three separate subset of
-    columns or index of the dataframes, the first consisting of common
-    values, the second of values exclusive to the first dataframe, the
-    third of values exclusive to the second dataframe.
+    'columns' or 'index' of the dataframes, the first consisting of
+    common values, the second of values exclusive to the first
+    dataframe, the third of values exclusive to the second dataframe.
+    This function is called within `handle_different_values`.
     """
-    if dim == "columns":
-        common = set(df_1.columns).intersection(set(df_2.columns))
-        only_1 = set(df_1.columns).difference(set(df_2.columns))
-        only_2 = set(df_2.columns).difference(set(df_1.columns))
-    elif dim == "index":
-        common = set(df_1.index).intersection(set(df_2.index))
-        only_1 = set(df_1.index).difference(set(df_2.index))
-        only_2 = set(df_2.index).difference(set(df_1.index))
+    DIM_DICT = {
+        "columns": [df_1.columns, df_2.columns],
+        "index": [df_1.index, df_2.index],
+    }
+    common = set(DIM_DICT[dim][0]).intersection(set(DIM_DICT[dim][1]))
+    only_1 = set(DIM_DICT[dim][0]).difference(set(DIM_DICT[dim][1]))
+    only_2 = set(DIM_DICT[dim][1]).difference(set(DIM_DICT[dim][0]))
     return common, only_1, only_2
 
 
