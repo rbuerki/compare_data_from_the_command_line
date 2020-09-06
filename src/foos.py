@@ -214,11 +214,33 @@ def _align_dtypes(
     return diff_list, df_a, df_b
 
 
+# TODO get_subsets maybe should not get called within handle if I ever need subsets - common is unused for now, maybe delete it
+
+
 def handle_different_values(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame]:
-    """x"""
+    """TODO"""
     common, only_1, only_2 = _get_subsets(dim, df_1, df_2)
+    SUBSETS = [("DF 1", df_1, only_1), ("DF 2", df_2, only_2)]
+
+    if len(only_1) == 0 and len(only_2) == 0:
+        return df_1, df_2
+    else:
+        print(f"{dim} of the dataframes differ.")
+        dataframes = []
+        for _tuple in SUBSETS:  # TODO test it
+            name, df, subset = *_tuple
+            if len(subset) > 0:
+                print(
+                    f"{name} has {len(subset)} entries not found in the other DF."
+                    f"These will be removed:"
+                )
+                for val in subset:
+                    print(val)
+            df = df.loc[~df.index.isin(subset)]
+            dataframes.append(df)
+        return dataframes[0], dataframes[1]
 
 
 def _get_subsets(
