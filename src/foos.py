@@ -129,7 +129,7 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
 
 
 def get_user_input(case: str) -> str:
-    """TODO - input_string probably wrong for dtyes, I wont remove
+    """TODO - message in input_string probably wrong for dtypes, as I wont remove
     non matching cols
     """
     if case == "columns":
@@ -214,17 +214,22 @@ def _align_dtypes(
     return diff_list, df_a, df_b
 
 
-# TODO get_subsets maybe should not get called within handle if I ever need subsets - common is unused for now, maybe delete it
+# TODO maybe get_subsets()  should not get called within handle if I ever need the subsets
+# common is unused for now, may be deleted
 
 
 def handle_different_values(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame]:
-    """TODO"""
-    common, only_1, only_2 = _get_subsets(dim, df_1, df_2)
-    SUBSETS = [("DF 1", df_1, only_1), ("DF 2", df_2, only_2)]
+    """Check if the dataframes have different values in the `columns`
+    or the `index`, depending on the passed dimension. If so, output a
+    warning and list the respective values. Return the dataframes with
+    all non-matching values removed on the respecting dimension.
+    """
+    only_in_1, only_in_2 = _get_subsets(dim, df_1, df_2)
+    SUBSETS = [("DF 1", df_1, only_in_1), ("DF 2", df_2, only_in_2)]
 
-    if len(only_1) == 0 and len(only_2) == 0:
+    if len(only_in_1) == 0 and len(only_in_2) == 0:
         return df_1, df_2
     else:
         print(f"{dim} of the dataframes differ.")
@@ -233,8 +238,9 @@ def handle_different_values(
             name, df, subset = *_tuple
             if len(subset) > 0:
                 print(
-                    f"{name} has {len(subset)} entries not found in the other DF."
-                    f"These will be removed:"
+                    f"{name} has {len(subset)} values in {dim} ",
+                    "that could not be found in the other DF. ",
+                    "These will be removed:",
                 )
                 for val in subset:
                     print(val)
@@ -246,22 +252,23 @@ def handle_different_values(
 def _get_subsets(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[set, set, set]:
-    """Depending on passed dimension, return three separate subset of
-    'columns' or 'index' of the dataframes, the first consisting of
-    common values, the second of values exclusive to the first
-    dataframe, the third of values exclusive to the second dataframe.
-    This function is called within `handle_different_values`.
+    """Return two separate subsets of `columns` or `index` of the
+    dataframes, depending on the passed dimension. The first subsets
+    is consisting of values exclusive to the first dataframe, the
+    second of values exclusive to the second dataframe.  (If there
+    are no such values, the substets are returned empty.) This function
+    is called within `handle_different_values`.
     """
     DIM_DICT = {
         "columns": [df_1.columns, df_2.columns],
         "index": [df_1.index, df_2.index],
     }
-    common = set(DIM_DICT[dim][0]).intersection(set(DIM_DICT[dim][1]))
-    only_1 = set(DIM_DICT[dim][0]).difference(set(DIM_DICT[dim][1]))
-    only_2 = set(DIM_DICT[dim][1]).difference(set(DIM_DICT[dim][0]))
-    return common, only_1, only_2
+    only_in_1 = set(DIM_DICT[dim][0]).difference(set(DIM_DICT[dim][1]))
+    only_in_2 = set(DIM_DICT[dim][1]).difference(set(DIM_DICT[dim][0]))
+    return only_in_1, only_in_2
 
 
+# TODO - probably dont need this anymore
 def handle_different_length(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -286,6 +293,7 @@ def handle_different_length(
     return df_1, df_2
 
 
+# TODO - probably dont need this anymore
 def check_for_overlapping_index_values(
     df_long: pd.DataFrame, df_short: pd.DataFrame
 ) -> pd.DataFrame:
@@ -309,6 +317,7 @@ def check_for_overlapping_index_values(
     return df_long
 
 
+# TODO - probably dont need this anymore
 def handle_different_width(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -333,6 +342,7 @@ def handle_different_width(
     return df_1, df_2
 
 
+# TODO - probably dont need this anymore
 def check_for_overlapping_column_names(
     df_wide: pd.DataFrame, df_slim: pd.DataFrame
 ) -> pd.DataFrame:
