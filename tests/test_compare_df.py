@@ -135,8 +135,11 @@ def test_get_subsets(df_1_base, df_1_extended):
     assert (only_1 == set(["date_1"])) and (only_2 == set(["xxx"]))
 
 
-def test_handle_different_values(df_1_base, df_1_extended):
-    pass  # TODO
+def test_handle_different_values(df_1_base, df_1_extended, capsys):
+    df_1, df_2 = foos.handle_different_values("index", df_1_base, df_1_extended)
+    assert list(df_1.index) == list(df_2.index)
+    captured = capsys.readouterr()
+    assert captured.out.endswith("\n2\n")
 
 
 def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
