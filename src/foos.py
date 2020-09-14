@@ -65,9 +65,6 @@ def _set_and_sort_index_col(df: pd.DataFrame, index_col: str) -> pd.DataFrame:
 #         print(f"Data types are identical: {dtype_check}")
 #         print("We will try to handle that ...\n")
 
-# TODO sort columns, only if you are sure that cols are ident
-# df = df.sort_index(axis=1)
-
 
 def impute_missing_values(
     df_1: pd.DataFrame, df_2: pd.DataFrame
@@ -89,6 +86,7 @@ def check_if_dataframes_are_equal(
     return df_1.equals(df_2)
 
 
+# TODO - do I really need this?
 def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     """Check if the dataframes have the same index length, return
     a boolean value.
@@ -96,6 +94,7 @@ def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return df_1.shape[0] == df_2.shape[0]
 
 
+# TODO - do I really need this?
 def check_for_same_width(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     """Check if the dataframes have the same number of cols, return
     a boolean value.
@@ -182,7 +181,7 @@ def enforce_dtype_identity(
             message = (
                 f"Not possible to enforce dtype identity "
                 f"on following column(s): {problematic_columns}. "
-                f"We continue with differing dtypes. "
+                f"Process continues with differing dtypes. "
             )
             print(message)
             return df_a, df_b
@@ -363,6 +362,17 @@ def _get_subsets(
 #             "Only the overlapping subset is compared.",
 #         )
 #     return df_wide
+
+
+def sort_columns(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Make sure that the column order of the two dataframes
+    is identical for the comparison.
+    """
+    df_1 = df_1.sort_index(axis=1)
+    df_2 = df_2.sort_index(axis=1)
+    return df_1, df_2
 
 
 def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:

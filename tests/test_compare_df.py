@@ -200,6 +200,11 @@ def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
         assert e.type is ValueError
 
 
+def test_sort_columns(df_1_base, df_2_base):
+    df_1, df_2 = foos.sort_columns(df_1_base, df_2_base)
+    assert df_1.columns[1] == df_2.columns[1] == "float_4"
+
+
 def test_compare(df_1_base, df_2_base, capsys):
     # NaN values have to be eliminated for this test
     df_1, df_2 = foos.impute_missing_values(df_1_base, df_2_base)
