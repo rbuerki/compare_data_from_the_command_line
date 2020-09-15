@@ -41,11 +41,17 @@ This project was essentially a little playground for experimenting with test dri
 - [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
 - [Article on Unit Testing With Pytest](https://realpython.com/pytest-python-testing/) also on RealPython
 
+## TODO - Up next (WIP)
 
-## TODO - Up next
+- [ ] Validate results with birthday test (see test ipynb)
+- [ ] Clean-up remaining TODO strings
+- [ ] Update README
+- [ ] Add XLSX support --> testcase "druckfiles" in dev folder
+- [ ] Add logging to file (for exact debugging)
+- [ ] Add function with output of difference 'coordinates'
 
-- [ ] Improve column sort (see note in file)
-- [ ] Improve handling of non-identical indexes
-- [ ] Check for TODO string
-- [ ] Add XLSX support
-- [ ] Add a setup.py
+## TODO - v0.3
+
+- [ ] Prio 2: Add a setup.py
+- [ ] Prio 2: Use the file names of the dataframes for output messages
+- [ ] ...
