@@ -99,6 +99,13 @@ def test_get_user_input(monkeypatch):
     assert user_input == "y"
 
 
+def test_enforce_column_identity(df_1_base, df_2_base):
+    df_1 = df_1_base.loc[:, ::-1]
+    df_1, df_2 = foos.enforce_column_identity(df_1, df_2_base)
+    assert list(df_1.columns) == list(df_2.columns)
+    assert list(df_1.columns)[0] == "string_6"
+
+
 def test_align_dtypes(df_1_base, df_2_base):
     diff_list, _, _ = foos._align_dtypes(df_1_base, df_2_base)
     assert len(diff_list) == 1
@@ -123,15 +130,13 @@ def test_enforce_dtype_identity(df_1_base, df_2_base, capsys):
 
 
 def test_get_subsets(df_1_base, df_1_extended):
-    common, only_1, only_2 = foos._get_subsets(
-        "index", df_1_base, df_1_extended
-    )
+    only_1, only_2 = foos._get_subsets("index", df_1_base, df_1_extended)
     assert (only_1 == set()) and (only_2 == set([2]))
     df_3 = df_1_extended.copy()
     colnames = list(df_3.columns)
     colnames[0] = "xxx"
     df_3.columns = colnames
-    common, only_1, only_2 = foos._get_subsets("columns", df_1_base, df_3)
+    only_1, only_2 = foos._get_subsets("columns", df_1_base, df_3)
     assert (only_1 == set(["date_1"])) and (only_2 == set(["xxx"]))
 
 
@@ -201,8 +206,9 @@ def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
 
 
 def test_sort_columns(df_1_base, df_2_base):
-    df_1, df_2 = foos.sort_columns(df_1_base, df_2_base)
-    assert df_1.columns[1] == df_2.columns[1] == "float_4"
+    df_1 = df_1_base.loc[:, ::-1]
+    df_1, df_2 = foos.sort_columns(df_1, df_2_base)
+    assert df_1.columns[0] == df_2.columns[0] == "string_6"
 
 
 def test_compare(df_1_base, df_2_base, capsys):

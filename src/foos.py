@@ -157,6 +157,17 @@ def get_user_input(case: str) -> str:
     return user_input
 
 
+def enforce_column_identity(
+    df_1: pd.DataFrame, df_2: pd.DataFrame
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """In case of the user wanting to align the column names when they
+    differ for dataframes of the same width, the column names of df_1
+    will be given to df_2.
+    """
+    df_2.columns = df_1.columns
+    return df_1, df_2
+
+
 def enforce_dtype_identity(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -193,7 +204,8 @@ def _align_dtypes(
     """Try to enforce the dtypes of non-object type of one dataframe
     on the other. Return a list of index values for those columns
     where it is not possible and the two dataframes (one of them
-    transformed).
+    transformed). This function is called within the function
+    `enforce_dtype_identity`.
     """
     dtypes = [str(x) for x in df_a.dtypes]
     for col, dtype in zip(df_b.columns, dtypes):
@@ -220,7 +232,7 @@ def _align_dtypes(
 def handle_different_values(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame]:
-    """Check if the dataframes have different values in the `columns`
+    """Check if the dataframes have differing values in the `columns`
     or the `index`, depending on the passed dimension. If so, output a
     warning and list the respective values. Return the dataframes with
     all non-matching values removed on the respecting dimension.
@@ -368,10 +380,10 @@ def sort_columns(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Make sure that the column order of the two dataframes
-    is identical for the comparison.
+    is identical for the comparison: Sort columns of df_2 according
+    to column order of df_2.
     """
-    df_1 = df_1.sort_index(axis=1)
-    df_2 = df_2.sort_index(axis=1)
+    df_2 = df_2.reindex(df_1.columns, axis=1)
     return df_1, df_2
 
 
