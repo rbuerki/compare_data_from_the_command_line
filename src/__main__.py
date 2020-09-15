@@ -39,21 +39,25 @@ def main(path_1: str, path_2: str, index_col: Optional[str]):
     if foos.check_if_dataframes_are_equal(df_1, df_2):
         print("Successfully compared, DFs are identical.")
     else:
-        if foos.check_for_same_length(df_1, df_2):
-            if foos.check_for_identical_index_values(df_1, df_2) is False:
-                raise ValueError(
-                    "Cannot compare DFs. Index values are not identical."
-                )
+        if foos.check_for_same_width:
+            if not foos.check_for_identical_column_names(df_1, df_2):
+                user_input = foos.get_user_input("columns")
+                if user_input == "y":
+                    df_1, df_2 = foos.handle_different_values(
+                        "columns", df_1, df_2
+                    )
+                else:
+                    df_1, df_2 = foos.enforce_column_identity(df_1, df_2)
         else:
-            df_1, df_2 = foos.handle_different_length(df_1, df_2)
+            df_1, df_2 = foos.handle_different_values("columns", df_1, df_2)
 
-        if foos.check_for_same_width(df_1, df_2):
-            if foos.check_for_identical_column_names(df_1, df_2) is False:
-                raise ValueError(
-                    "Cannot compare DFs. Column names are not identical."
-                )
-        else:
-            df_1, df_2 = foos.handle_different_width(df_1, df_2)
+        df_1, df_2 = foos.sort_columns(df_1, df_2)
+
+        if not foos.check_for_identical_index_values(df_1, df_2):
+            df_1, df_2 = foos.handle_different_values("index", df_1, df_2)
+
+        if not foos.check_for_identical_dtypes(df_1, df_2):
+            df_1, df_2 = foos.enforce_dtype_identity(df_1, df_2)
 
         foos.compare(df_1, df_2)
 
