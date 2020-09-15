@@ -238,7 +238,7 @@ def handle_different_values(
     if len(only_in_1) == 0 and len(only_in_2) == 0:
         return df_1, df_2
     else:
-        print(f"{dim} of the dataframes differ.")
+        print(f"Found difference in {dim} for the two dataframes.")
         dataframes = []
         for _tuple in SUBSETS:
             name, df, subset = _tuple[0], _tuple[1], _tuple[2]
@@ -250,7 +250,11 @@ def handle_different_values(
                 )
                 for val in subset:
                     print(val)
-            df = df.loc[~df.index.isin(subset)]
+            if dim == "index":
+                df = df.loc[~df.index.isin(subset)]
+            elif dim == "columns":
+                cols = [col for col in df.columns if col not in subset]
+                df = df[cols]
             dataframes.append(df)
         return dataframes[0], dataframes[1]
 
