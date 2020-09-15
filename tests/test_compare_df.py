@@ -74,20 +74,6 @@ def test_check_for_identical_index_values(df_1_base, df_2_base, df_1_extended):
     )
 
 
-def test_check_for_overlapping_index_values(df_1_base, df_1_extended):
-    df_1_extended = foos.check_for_overlapping_index_values(
-        df_1_extended, df_1_base
-    )
-    assert_index_equal(df_1_extended.index, df_1_base.index)
-
-    df_1_base.index = [1, 3]
-    with pytest.raises(
-        ValueError, match="Cannot compare DFs. Index values do not overlap."
-    ) as e:
-        foos.check_for_overlapping_index_values(df_1_extended, df_1_base)
-        assert e.type is ValueError
-
-
 def test_check_for_identical_dtypes(df_1_base, df_2_base):
     assert foos.check_for_identical_dtypes(df_1_base, df_1_base)
     assert foos.check_for_identical_dtypes(df_1_base, df_2_base) is False
@@ -145,64 +131,6 @@ def test_handle_different_values(df_1_base, df_1_extended, capsys):
     assert list(df_1.index) == list(df_2.index)
     captured = capsys.readouterr()
     assert captured.out.endswith("\n2\n")
-
-
-def test_handle_different_length(df_1_base, df_2_base, df_1_extended):
-    df_1, df_2 = foos.handle_different_length(df_1_extended, df_1_base)
-    assert len(df_1) == len(df_2)
-
-    df_1, df_2 = foos.handle_different_length(df_1_base, df_1_extended)
-    assert len(df_1) == len(df_2)
-
-    with pytest.raises(
-        AssertionError, match="Something strange happened ..."
-    ) as e:
-        foos.handle_different_length(df_1_base, df_2_base)
-        assert e.type is AssertionError
-
-    df_2_base.index = [0, 2]
-    with pytest.raises(
-        ValueError, match="Cannot compare DFs. Index values are not identical."
-    ) as e:
-        foos.handle_different_length(df_1_base, df_2_base)
-        assert e.type is ValueError
-
-
-def test_check_for_overlapping_column_names(df_1_base, df_1_extended):
-    df_1_base = df_1_base[list(df_1_base.columns)[1:]]
-    df_1_extended = foos.check_for_overlapping_column_names(
-        df_1_extended, df_1_base
-    )
-    assert df_1_extended.shape[1] == df_1_base.shape[1]
-
-    df_1_base.columns = ["a", "b", "c", "d", "e"]
-    with pytest.raises(
-        ValueError, match="Cannot compare DFs. Column names do not overlap."
-    ) as e:
-        foos.check_for_overlapping_column_names(df_1_extended, df_1_base)
-        assert e.type is ValueError
-
-
-def test_handle_different_width(df_1_base, df_2_base, df_1_extended):
-    df_1_extended = df_1_extended[list(df_1_extended.columns)[1:]]
-    df_1, df_2 = foos.handle_different_width(df_1_extended, df_1_base)
-    assert df_1.shape[1] == df_2.shape[1]
-
-    df_1, df_2 = foos.handle_different_width(df_1_base, df_1_extended)
-    assert df_1.shape[1] == df_2.shape[1]
-
-    with pytest.raises(
-        AssertionError, match="Something strange happened ..."
-    ) as e:
-        foos.handle_different_width(df_1_base, df_2_base)
-        assert e.type is AssertionError
-
-    df_2_base.columns = ["a", "b", "c", "d", "e", "f"]
-    with pytest.raises(
-        ValueError, match="Cannot compare DFs. Column names are not identical."
-    ) as e:
-        foos.handle_different_width(df_1_base, df_2_base)
-        assert e.type is ValueError
 
 
 def test_sort_columns(df_1_base, df_2_base):

@@ -46,6 +46,7 @@ def _set_and_sort_index_col(df: pd.DataFrame, index_col: str) -> pd.DataFrame:
         sys.exit()
 
 
+# TODO I could use this for logging? Or delete it ...
 # def check_initial_structural_differences(
 #     df_1: pd.DataFrame, df_2: pd.DataFrame
 # ):
@@ -86,7 +87,7 @@ def check_if_dataframes_are_equal(
     return df_1.equals(df_2)
 
 
-# TODO - do I really need this?
+# TODO - I don't need this probably and can remove it
 def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     """Check if the dataframes have the same index length, return
     a boolean value.
@@ -94,7 +95,6 @@ def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return df_1.shape[0] == df_2.shape[0]
 
 
-# TODO - do I really need this?
 def check_for_same_width(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     """Check if the dataframes have the same number of cols, return
     a boolean value.
@@ -128,8 +128,7 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
 
 
 def get_user_input(case: str) -> str:
-    """TODO - message in input_string probably wrong for dtypes, as I wont remove
-    non matching cols
+    """TODO - I don't need this for dtypes, I think. I will remove the functionality.
     """
     if case == "columns":
         STR_VARS = ["width", "column names", "columns"]
@@ -225,10 +224,6 @@ def _align_dtypes(
     return diff_list, df_a, df_b
 
 
-# TODO maybe get_subsets() should not get called within handle if I ever need the subsets
-# common is unused for now, may be deleted
-
-
 def handle_different_values(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame]:
@@ -279,103 +274,6 @@ def _get_subsets(
     return only_in_1, only_in_2
 
 
-# # TODO - probably dont need this anymore
-# def handle_different_length(
-#     df_1: pd.DataFrame, df_2: pd.DataFrame
-# ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-#     """When dataframes do not have the same length but the index values
-#     are overlapping, return the overlapping part of the longer dataframe
-#     only to make a comparison possible. If index values do not overlap
-#     raise a value error.
-#     """
-#     if len(df_1) > len(df_2):
-#         df_1 = check_for_overlapping_index_values(df_1, df_2)
-#         return df_1, df_2
-#     elif len(df_2) > len(df_1):
-#         df_2 = check_for_overlapping_index_values(df_2, df_1)
-#         return df_1, df_2
-#     else:
-#         # Asserting one of these "I swear this cannot happen" issues ;-)
-#         assert (
-#             check_for_identical_index_values(df_1, df_2) is False
-#         ), "Something strange happened ..."
-#         raise ValueError("Cannot compare DFs. Index values are not identical.")
-
-#     return df_1, df_2
-
-
-# # TODO - probably dont need this anymore
-# def check_for_overlapping_index_values(
-#     df_long: pd.DataFrame, df_short: pd.DataFrame
-# ) -> pd.DataFrame:
-#     """Check if the index values of the longer dataframe fully overlap
-#     with the values of the shorter dataframe, then reindex the longer
-#     dataframe, so that it is shortened to match the index values of
-#     the shorter dataframe. This function is called within the
-#     `handle_different_length` function.
-#     """
-#     len_df_long_orig = len(df_long)
-#     if len(set(df_short.index).difference(set(df_long.index))) != 0:
-#         raise ValueError("Cannot compare DFs. Index values do not overlap.")
-#     else:
-#         df_long = df_long.reindex(df_short.index)
-#         print(
-#             f"INFO: DF 1 has {len_df_long_orig - len(df_short)}",
-#             "rows more than DF 2.",
-#             "Only the overlapping subset is compared.",
-#         )
-
-#     return df_long
-
-
-# # TODO - probably dont need this anymore
-# def handle_different_width(
-#     df_1: pd.DataFrame, df_2: pd.DataFrame
-# ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-#     """When dataframes do not have the same witdh but the column names
-#     are overlapping, return the overlapping part of the wider dataframe
-#     only to make a comparison possible. If column names do not overlap
-#     raise a value error.
-#     """
-#     if df_1.shape[1] > df_2.shape[1]:
-#         df_1 = check_for_overlapping_column_names(df_1, df_2)
-#         return df_1, df_2
-#     elif df_2.shape[1] > df_1.shape[1]:
-#         df_2 = check_for_overlapping_column_names(df_2, df_1)
-#         return df_1, df_2
-#     else:
-#         # Asserting one of these "I swear this cannot happen" issues ;-)
-#         assert (
-#             check_for_identical_column_names(df_1, df_2) is False
-#         ), "Something strange happened ..."
-#         raise ValueError("Cannot compare DFs. Column names are not identical.")
-
-#     return df_1, df_2
-
-
-# # TODO - probably dont need this anymore
-# def check_for_overlapping_column_names(
-#     df_wide: pd.DataFrame, df_slim: pd.DataFrame
-# ) -> pd.DataFrame:
-#     """Check if the column names of the longer dataframe fully overlap
-#     with the values of the shorter dataframe, then reindex the wider
-#     dataframe, so that it is slimmed down to match the column names of
-#     the slimmer dataframe. This function is called within the
-#     `handle_different_width` function.
-#     """
-#     width_df_wide_orig = df_wide.shape[1]
-#     if len(set(df_slim.columns).difference(set(df_wide.columns))) != 0:
-#         raise ValueError("Cannot compare DFs. Column names do not overlap.")
-#     else:
-#         df_wide = df_wide[df_slim.columns]
-#         print(
-#             f"INFO: DF 1 has {width_df_wide_orig - len(df_slim)}",
-#             "columns more than DF 2.",
-#             "Only the overlapping subset is compared.",
-#         )
-#     return df_wide
-
-
 def sort_columns(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -401,6 +299,6 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
     else:
         df_diff = df_1 != df_2
         print(
-            "Successfully compared. DFs are NOT indentical.\n",
-            f"Count of differences per column:\n\n{df_diff.sum()}",
+            "Successfully compared. DFs are NOT indentical.",
+            f"\nCount of differences per column:\n\n{df_diff.sum()}",
         )
