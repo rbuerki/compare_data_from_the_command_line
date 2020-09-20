@@ -16,7 +16,7 @@ It starts with **different encodings, special formatting and so on**: When start
 
 If your dataframes are of **different shape**, the application will handle that. It checks for common values in the (sorted) index and columns list and compares those sections only. It will tell you which rows or / columns have been dropped before the comparison. (This is convenient if, for example, you want to compare data from different ETL pipepline runs where new data is added with each dump. You can make sure that the handling of the older datapoints is consistent.)
 
-... And don't worry: You can define **any column with non-duplicate values to be used as index** and if it happens that your dataframes have the same number of columns but their names differ, the app will double check if you want to the column names to be matched or if you really want the non-overlapping values to be dropped.
+... and don't worry: You can define **any column with non-duplicate values to be used as index** and if it happens that your dataframes have the same number of columns but their names differ, the app will double check if you want to the column names to be matched or if you really want the non-overlapping values to be dropped.
 
 Finally the app will even try to ensure that the **dtypes of the differente columns are identical** (so long as they are not of dtype "object", because that could result in loss of information for some datetime formats). If this is not possible you'll get a warning, but the comparison will go on nevertheless.
 
@@ -32,10 +32,10 @@ Only if this fails, the edge-case handling get's activated and a final second ch
 
 Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df` folder in this repo to your local machine and make it available where ever you need it.
 
-Then you can start the process from the command line, and in the simplest of use cases, just passing the path strings / names of the two CSV-files containing the data that you want to compare:
+Then you can start the process from the command line, and, in the simplest of use cases, you'll simply pass the path strings / names of the two CSV-files containing the data that you want to compare:
 
 ```python
-python compare_df.py {"source_file_1"} {"source_file_2"}
+python compare_df {"source_file_1"} {"source_file_2"}
 ```
 
 If you want to define a specific column to be used as index, you can do this with the prefix `-i` or `--index_col`.
@@ -43,12 +43,12 @@ If you want to define a specific column to be used as index, you can do this wit
 If things get nasty and you have to pass some extra load params to get your dataframes properly loaded, you can pass the respective key-value-pairs as strings after the following prefixes (depending on the dataframe):
 
 - `-l_1` / `--load_params_1` (first file)
-- `-l_1` / `--load_params_1` (second file)
+- `-l_2` / `--load_params_2` (second file)
 
 A full example could then look as follows:
 
 ```python
-python src "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
+python compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
 ```
 
 You'll need Python >= 3.6 and a version of Pandas that's not too old.
@@ -59,7 +59,7 @@ This project was essentially a little playground for experimenting with test dri
 
 - [Article on Unit Testing With Pytest](https://realpython.com/pytest-python-testing/) also on RealPython
 - [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
-- [Stackoverflow on parsing to a dictionary](https://stackoverflow.com/questions/29986185/python-argparse-dict-arg)
+- [Stackoverflow topic on parsing to a dictionary](https://stackoverflow.com/questions/29986185/python-argparse-dict-arg) (could do even more sophisticated)
 
 ## TODO - WIP
 
