@@ -1,6 +1,6 @@
 # Compare Data From The Command Line
 
-(A small side project, June 2020)
+(Side project, Summer 2020)
 
 ## Intro
 
@@ -38,20 +38,44 @@ You'll need Python >= 3.6 and a "contemporary" version of Pandas. ;-)
 
 This project was essentially a little playground for experimenting with test driven development and for working with a CLI. The following resources got me started:
 
-- [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
 - [Article on Unit Testing With Pytest](https://realpython.com/pytest-python-testing/) also on RealPython
+- [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
+- [Stackoverflow on parsing to a dictionary](https://stackoverflow.com/questions/29986185/python-argparse-dict-arg)
 
-## TODO - Up next (WIP)
+## TODO - WIP
 
-- [ ] Validate results with birthday test (see test ipynb)
-- [ ] Clean-up remaining TODO strings
-- [ ] Update README
-- [ ] Add XLSX support --> testcase "druckfiles" in dev folder
-- [ ] Add logging to file (for exact debugging)
-- [ ] Add function with output of difference 'coordinates'
+- [ ] Update README --> edgecases
+- [ ] Add function with output of difference 'coordinates' / save diff_df
+- [ ] Add a WARNING when n cols = 1 - ask for next steps
+
+```python
+python src "dev/birthday_loeb/iloy_normal.csv" "dev/birthday_loeb/mike_normal.csv" -l_2 "engine"="python" -l_2 "sep"=";" -l_1 "encoding"="UTF-8" -l_1 "sep"=";" -i "KundenID"
+```
 
 ## TODO - v0.3
 
+- [ ] Add GUI
+- [ ] Add XLSX support --> testcase "druckfiles" in dev folder
 - [ ] Prio 2: Add a setup.py
 - [ ] Prio 2: Use the file names of the dataframes for output messages
-- [ ] ...
+- [ ] Maybe: Add logging to file (for exact debugging)
+
+<!-- # TODO I could use this for logging? Or delete it ...
+# def check_initial_structural_differences(
+#     df_1: pd.DataFrame, df_2: pd.DataFrame
+# ):
+#     """Check if index, columns, datatypes are equal and
+#     print info to console.
+#     """
+#     shape_check = df_1.shape == df_2.shape
+#     col_check = df_1.columns == df_2.columns
+#     idx_check = df_1.index == df_2.index
+#     dtype_check = df_1.dtypes == df_2.dtypes
+
+#     if not shape_check or not dtype_check:
+#         print("\nInitial quickcheck for structural differences:")
+#         print(f"Dataframe Shapes are identical: {shape_check}")
+#         print(f"Column names are identical: {col_check}")
+#         print(f"Indexes are identical: {idx_check}")
+#         print(f"Data types are identical: {dtype_check}")
+#         print("We will try to handle that ...\n") -->
