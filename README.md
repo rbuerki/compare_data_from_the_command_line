@@ -4,35 +4,54 @@
 
 ## Intro
 
-This application loads tabular data from two CSV-files into pandas dataframes and compares the data for differences. If differences are found, it prints a summary with the count of differing values per column.
+This application loads tabular data from two CSV-files into pandas dataframes and compares the data. If differences are found, it prints a summary with the count of differing values per column, and optionally saves a new dataframe with boolean values indicating the location of the differences.
 
 ### What for?
 
-_And what's so special about this? Why not just use Pandas built-in `df.equals(df)` functionality or perfrom a boolean check with `(df != df).any()`?_
+_And what's so special about this? Why not just use Pandas built-in `df.equals(df)` functionality or perfrom a boolean check with `(df != df).any()` or `df.ne(df)`?_
 
-Now, first, here we've got a command line interface, making it a very handy tool for a (super) quick check. But what makes it really special, is it's ability to handle dataframes of different size. (The aforementioned pandas functions don't do that.) So, if one dataframe is wider and / or longer than the other, the app checks for overlapping sections in the index and columns list and compares those sections only.
+Now, first, here we've got a command line interface, making it a very handy tool for a (super) quick check. But what makes it really special, is it's ability to handle a couple of edge cases. (And believe me, I have encountered all of them in my daily work.)
 
-This is convenient if, for example, you want to compare data from different ETL pipepline runs where new data is added with each dump. Now you can make sure that the handling of the older datapoints ist consistent.
+It starts with **different encodings, special formatting and so on**: When starting the process from the CLI, you can enter all those special parameters that will then be passed to pandas' `pd.load_csv()` function for each of the two dataframes separately.
+
+If your dataframes are of **different shape**, the application will handle that. It checks for common values in the (sorted) index and columns list and compares those sections only. It will tell you which rows or / columns have been dropped before the comparison. (This is convenient if, for example, you want to compare data from different ETL pipepline runs where new data is added with each dump. You can make sure that the handling of the older datapoints is consistent.)
+
+... And don't worry: You can define **any column with non-duplicate values to be used as index** and if it happens that your dataframes have the same number of columns but their names differ, the app will double check if you want to the column names to be matched or if you really want the non-overlapping values to be dropped.
+
+Finally the app will even try to ensure that the **dtypes of the differente columns are identical** (so long as they are not of dtype "object", because that could result in loss of information for some datetime formats). If this is not possible you'll get a warning, but the comparison will go on nevertheless.
 
 ### Behaviour, Functionality
 
-By design, this means that index values and column names have to be consistent. If these change the comparison will fail. (One consequence: New datapoints have to be assigned to new index values.)
+To be effective the index values and column names of the two dataframes have to to consistent. If these are floating the comparison will fail. (One consequence: New datapoints have to be assigned to new index values.)
 
-There are two equality checks in this app. The first is run for dataframes of identical shape with the Pandas' `pd.equals()` function. This is a "strict" comparison that also takes into account the datatypes of the values.
+The app runs two equality checks. The first is run at the start of the process for dataframes of identical shape with the Pandas' `pd.equals()` function. It is a "strict" comparison that also takes into account the datatypes of the values.
 
-If dataframes are not of the same size, as second check is run after some data handling, this time with a boolean comparison. That one is less strict and compares values indipendent of their datatypes. This is necessary because the handling can change datatypes (especially if you have NaN values in your dataframes). Be aware of that.
+Only if this fails, the edge-case handling get's activated and a final second check is run, this time with a boolean comparison. That one is less strict and compares values independent of their datatypes. (But you'll get a warning anyway if they differ.)
 
 ## Installation and Usage
 
-Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df.py` file in the `src/` folder of this repo to your local machine and make it available whereever you need it.
+Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df` folder in this repo to your local machine and make it available where ever you need it.
 
-Then you can use it from the command line, passing the path / names of the two CSV-files containing the data that you want to compare:
+Then you can start the process from the command line, and in the simplest of use cases, just passing the path strings / names of the two CSV-files containing the data that you want to compare:
 
 ```python
-python compare_df.py {source_file_1} {source_file_2}
+python compare_df.py {"source_file_1"} {"source_file_2"}
 ```
 
-You'll need Python >= 3.6 and a "contemporary" version of Pandas. ;-)
+If you want to define a specific column to be used as index, you can do this with the prefix `-i` or `--index_col`.
+
+If things get nasty and you have to pass some extra load params to get your dataframes properly loaded, you can pass the respective key-value-pairs as strings after the following prefixes (depending on the dataframe):
+
+- `-l_1` / `--load_params_1` (first file)
+- `-l_1` / `--load_params_1` (second file)
+
+A full example could then look as follows:
+
+```python
+python src "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
+```
+
+You'll need Python >= 3.6 and a version of Pandas that's not too old.
 
 ## Aknowledgements / Resources
 
@@ -44,17 +63,12 @@ This project was essentially a little playground for experimenting with test dri
 
 ## TODO - WIP
 
-- [ ] Update README --> edgecases
 - [ ] Add function with output of difference 'coordinates' / save diff_df
 - [ ] Add a WARNING when n cols = 1 - ask for next steps
 
-```python
-python src "dev/birthday_loeb/iloy_normal.csv" "dev/birthday_loeb/mike_normal.csv" -l_2 "engine"="python" -l_2 "sep"=";" -l_1 "encoding"="UTF-8" -l_1 "sep"=";" -i "KundenID"
-```
-
 ## TODO - v0.3
 
-- [ ] Add GUI
+- [ ] Add a GUI
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
 - [ ] Prio 2: Add a setup.py
 - [ ] Prio 2: Use the file names of the dataframes for output messages
