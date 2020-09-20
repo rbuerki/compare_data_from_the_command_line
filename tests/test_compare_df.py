@@ -136,7 +136,7 @@ def test_handle_different_values(df_1_base, df_1_extended, capsys):
     df_1, df_2 = foos.handle_different_values("index", df_1_base, df_1_extended)
     assert list(df_1.index) == list(df_2.index)
     captured = capsys.readouterr()
-    assert captured.out.endswith("\n2\n")
+    assert captured.out.endswith("\n  - 2\n")
 
 
 def test_sort_columns(df_1_base, df_2_base):
@@ -151,11 +151,11 @@ def test_compare(df_1_base, df_2_base, capsys):
 
     foos.compare(df_1, df_1)
     captured = capsys.readouterr()  # Capture output
-    assert "Matching subsets of DFs are identical" in captured.out
+    assert "They are identical" in captured.out
 
     foos.compare(df_1, df_2)
     captured = capsys.readouterr()  # Capture output
-    assert "Successfully compared. DFs are NOT indentical." in captured.out
+    assert "They are NOT indentical." in captured.out
 
 
 # def test_main(capsys):
