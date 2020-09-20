@@ -300,7 +300,3 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
             "They are NOT indentical.",
             f"\n# of differences per column:\n\n{df_diff.sum()}",
         )
-
-
-# def return_indices_of_differing_values(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
-
