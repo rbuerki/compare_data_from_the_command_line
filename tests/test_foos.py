@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from src import foos  # noqa
+from compare_df import foos  # noqa
 
-# from src.__main__ import main  # noqa TODO, main test fails
+# from compare_df.__main__ import main  # noqa TODO, main test fails
 
 
 def test_load_csv():
