@@ -1,5 +1,4 @@
 import numpy as np
-from pandas.testing import assert_index_equal
 import pytest
 
 from src import foos  # noqa
@@ -7,8 +6,8 @@ from src import foos  # noqa
 # from src.__main__ import main  # noqa TODO, main test fails
 
 
-def test_load_files():
-    df_1, df_2 = foos.load_files(
+def test_load_csv():
+    df_1, df_2 = foos.load_csv(
         "tests/df_1_file.csv", "tests/df_2_file.csv", None
     )
     assert df_1.shape == (2, 6)
@@ -17,9 +16,21 @@ def test_load_files():
     assert list(df_1.iloc[:, -1].values) == ["hello", np.NaN]
 
 
+def test_load_csv_with_params():
+    df_1, df_2 = foos.load_csv(
+        "tests/df_1_file.csv",
+        "tests/df_2_file.csv",
+        params_1={"sep": ","},
+        params_2={"sep": ","},
+        index_col="str_3",
+    )
+    assert df_1.shape == df_2.shape == (2, 5)
+    assert df_1.index.name == df_1.index.name == "str_3"
+
+
 def test_load_files_with_valid_index_col():
-    df_1, df_2 = foos.load_files(
-        "tests/df_1_file.csv", "tests/df_2_file.csv", "str_3"
+    df_1, df_2 = foos.load_csv(
+        "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="str_3"
     )
     assert df_1.shape == (2, 5)
     assert df_2.shape == (2, 5)
@@ -29,8 +40,8 @@ def test_load_files_with_valid_index_col():
 
 def test_load_files_with_invalid_index_col(capsys):
     with pytest.raises(SystemExit) as exc_info:
-        df_1, df_2 = foos.load_files(
-            "tests/df_1_file.csv", "tests/df_2_file.csv", "date_1"
+        df_1, df_2 = foos.load_csv(
+            "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="date_1"
         )
         captured = capsys.readouterr()
         assert "Error. Column date_1" in captured.out

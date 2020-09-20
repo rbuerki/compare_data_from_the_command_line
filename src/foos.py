@@ -1,49 +1,72 @@
+import os
 import sys
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
 
-def load_files(
-    path_1: str, path_2: str, index_col: Optional[str]
+def load_csv(
+    path_1: str,
+    path_2: str,
+    params_1: Optional[Dict] = None,
+    params_2: Optional[Dict] = None,
+    index_col: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Load data from files and return the dataframes."""
+    """Load data from files and return the dataframes. Optional load params
+    for each dataframe can be specified (according to `pd.read_csv()`) and
+    also an column name to be used as index.
+    """
     dataframes = []
-    for path in [path_1, path_2]:
-        for separator in [",", ";", "\t", "|"]:
-            try:
-                df = pd.read_csv(
-                    path, sep=f"{separator}", engine="python",
-                )  # TODO: engine doesn't always fit the bill
-            except FileNotFoundError:
-                print(f"Sorry, file not found: '{path}'")
-                sys.exit()
-            if len(df.columns) > 1:
-                break
+    for path, params in {path_1: params_1, path_2: params_2}.items():
+        try:
+            os.path.exists(path)
+        except FileNotFoundError:
+            print(f"Sorry, path {path} does not exist.")
+            sys.exit()
+
+        if params:
+            df = pd.read_csv(path, **params)
+        else:
+            for separator in [",", ";", "\t", "|"]:
+                df = pd.read_csv(path, sep=f"{separator}")
+                if len(df.columns) > 1:
+                    break
         print(f"DF loaded, with original shape of {df.shape}")
+
         if index_col:
-            df = _set_and_sort_index_col(df, index_col)
+            try:
+                df = _set_and_sort_index_col(df, index_col, path)
+            except KeyError:
+                print(f"Sorry, column {index_col} not found in file {path}.")
         else:
             df = df.sort_index()
         dataframes.append(df)
+
     return dataframes[0], dataframes[1]
 
 
-def _set_and_sort_index_col(df: pd.DataFrame, index_col: str) -> pd.DataFrame:
+def _set_and_sort_index_col(
+    df: pd.DataFrame, index_col: str, path: str
+) -> pd.DataFrame:
     """
-    If an index_col param is passed, check if that index_col has unique
-    values only. If not, reject and exit. If yes, set to index and sort.
-    This function is called within the load function.
+    If an index_col param is passed, check if that index_col exists in
+    the dataframe and if it has unique values only. If not, reject
+    and exit. If yes, set to index and sort. This function is called
+    within `load_files`.
     """
-    if df[index_col].duplicated().sum() == 0:
-        df = df.set_index(index_col, drop=True).sort_index()
-        return df
-    else:
+    if index_col not in df.columns:
+        print(f"Sorry, column {index_col} not found in file {path}.")
+        sys.exit()
+
+    elif df[index_col].duplicated().sum() > 0:
         print(
             f"Error. Column {index_col} has duplicate values",
             "and cannot be used as dataframe index.",
         )
         sys.exit()
+    else:
+        df = df.set_index(index_col, drop=True).sort_index()
+        return df
 
 
 # TODO I could use this for logging? Or delete it ...
@@ -306,3 +329,7 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
             "Successfully compared. DFs are NOT indentical.",
             f"\nCount of differences per column:\n\n{df_diff.sum()}",
         )
+
+
+# def return_indices_of_differing_values(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
+
