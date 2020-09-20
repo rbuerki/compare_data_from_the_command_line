@@ -20,8 +20,8 @@ def test_load_csv_with_params():
     df_1, df_2 = foos.load_csv(
         "tests/df_1_file.csv",
         "tests/df_2_file.csv",
-        params_1={"sep": ","},
-        params_2={"sep": ","},
+        load_params_1={"sep": ","},
+        load_params_2={"sep": ","},
         index_col="str_3",
     )
     assert df_1.shape == df_2.shape == (2, 5)
@@ -59,11 +59,6 @@ def test_check_if_dataframes_are_equal(df_1_base, df_2_base):
     assert foos.check_if_dataframes_are_equal(df_1_base, df_1_base)
 
 
-def test_check_for_same_length(df_1_base, df_2_base, df_1_extended):
-    assert foos.check_for_same_length(df_1_base, df_1_extended) is False
-    assert foos.check_for_same_length(df_1_base, df_2_base)
-
-
 def test_check_for_same_width(df_1_base, df_1_extended):
     assert foos.check_for_same_width(df_1_base, df_1_extended)
     df_1_extended = df_1_extended[list(df_1_extended.columns)[1:]]
@@ -92,7 +87,7 @@ def test_check_for_identical_dtypes(df_1_base, df_2_base):
 
 def test_get_user_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
-    user_input = foos.get_user_input("dtypes")
+    user_input = foos.get_user_input()
     assert user_input == "y"
 
 

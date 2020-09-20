@@ -8,8 +8,8 @@ import pandas as pd
 def load_csv(
     path_1: str,
     path_2: str,
-    params_1: Optional[Dict] = None,
-    params_2: Optional[Dict] = None,
+    load_params_1: Optional[Dict[str, str]] = None,
+    load_params_2: Optional[Dict[str, str]] = None,
     index_col: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load data from files and return the dataframes. Optional load params
@@ -17,7 +17,7 @@ def load_csv(
     also an column name to be used as index.
     """
     dataframes = []
-    for path, params in {path_1: params_1, path_2: params_2}.items():
+    for path, params in {path_1: load_params_1, path_2: load_params_2}.items():
         try:
             os.path.exists(path)
         except FileNotFoundError:
@@ -31,7 +31,7 @@ def load_csv(
                 df = pd.read_csv(path, sep=f"{separator}")
                 if len(df.columns) > 1:
                     break
-        print(f"DF loaded, with original shape of {df.shape}")
+        print(f"- DF loaded, with original shape of {df.shape}")
 
         if index_col:
             try:
@@ -69,27 +69,6 @@ def _set_and_sort_index_col(
         return df
 
 
-# TODO I could use this for logging? Or delete it ...
-# def check_initial_structural_differences(
-#     df_1: pd.DataFrame, df_2: pd.DataFrame
-# ):
-#     """Check if index, columns, datatypes are equal and
-#     print info to console.
-#     """
-#     shape_check = df_1.shape == df_2.shape
-#     col_check = df_1.columns == df_2.columns
-#     idx_check = df_1.index == df_2.index
-#     dtype_check = df_1.dtypes == df_2.dtypes
-
-#     if not shape_check or not dtype_check:
-#         print("\nInitial quickcheck for structural differences:")
-#         print(f"Dataframe Shapes are identical: {shape_check}")
-#         print(f"Column names are identical: {col_check}")
-#         print(f"Indexes are identical: {idx_check}")
-#         print(f"Data types are identical: {dtype_check}")
-#         print("We will try to handle that ...\n")
-
-
 def impute_missing_values(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -108,14 +87,6 @@ def check_if_dataframes_are_equal(
     return a boolean value.
     """
     return df_1.equals(df_2)
-
-
-# TODO - I don't need this probably and can remove it
-def check_for_same_length(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
-    """Check if the dataframes have the same index length, return
-    a boolean value.
-    """
-    return df_1.shape[0] == df_2.shape[0]
 
 
 def check_for_same_width(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
@@ -150,21 +121,17 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return list(df_1.dtypes.values) == list(df_2.dtypes.values)
 
 
-def get_user_input(case: str) -> str:
-    """TODO - I don't need this for dtypes, I think. I will remove the functionality.
+def get_user_input() -> str:
+    """Get user input on what to do if the the dataframes are of same
+    width, but the column names differ.
     """
-    if case == "columns":
-        STR_VARS = ["width", "column names", "columns"]
-    elif case == "dtypes":
-        STR_VARS = ["column names", "dtypes", "columns"]
-
     INPUT_STRING = (
-        f"The dataframes have the same {STR_VARS[0]}, but the "
-        f"{STR_VARS[1]} differ. If you want to drop the "
-        f"non-overlapping {STR_VARS[2]} for the comparison, "
-        f"please press 'y'. If you think the data structure "
-        f"is identical and want to enforce the {STR_VARS[1]} to "
-        f"be identical for a full comparison, please press 'n'."
+        "The dataframes have the same number of columns, but their "
+        "names differ. If you want to drop the non-overlapping "
+        "columns for the comparison, please press 'y'. "
+        "If you think the data structure of the dataframes"
+        "is identical and want to enforce the column names to "
+        "be identical for a 'full' comparison, please press 'n'."
     )
 
     user_input = None
@@ -261,18 +228,18 @@ def handle_different_values(
     if len(only_in_1) == 0 and len(only_in_2) == 0:
         return df_1, df_2
     else:
-        print(f"Found difference in {dim} for the two dataframes.")
+        print(f"\nFound differences in the {dim} of the two dataframes.")
         dataframes = []
         for _tuple in SUBSETS:
             name, df, subset = _tuple[0], _tuple[1], _tuple[2]
             if len(subset) > 0:
                 print(
-                    f"{name} has {len(subset)} value(s) in {dim}",
+                    f"- {name} has {len(subset)} value(s) in {dim}",
                     "that could not be found in the other DF",
                     "and will be removed:",
                 )
                 for val in subset:
-                    print(val)
+                    print(f"  - {val}")
             if dim == "index":
                 df = df.loc[~df.index.isin(subset)]
             elif dim == "columns":
@@ -322,12 +289,16 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
     after having been eliminated during previous steps.
     """
     if (df_1 != df_2).sum().sum() == 0:
-        print("Successfully compared. Matching subsets of DFs are identical.")
+        print(
+            f"\nDataframes successfully compared with shape {df_1.shape}.",
+            " They are identical.",
+        )
     else:
         df_diff = df_1 != df_2
         print(
-            "Successfully compared. DFs are NOT indentical.",
-            f"\nCount of differences per column:\n\n{df_diff.sum()}",
+            f"\nDataframes successfully compared with shape {df_1.shape}.",
+            "They are NOT indentical.",
+            f"\n# of differences per column:\n\n{df_diff.sum()}",
         )
 
 
