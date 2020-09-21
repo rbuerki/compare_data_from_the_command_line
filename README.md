@@ -61,12 +61,10 @@ This project was essentially a little playground for experimenting with test dri
 - [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
 - [Stackoverflow topic on parsing to a dictionary](https://stackoverflow.com/questions/29986185/python-argparse-dict-arg) (could do even more sophisticated)
 
-## TODO - WIP
-
-- [ ] Add a WARNING when n cols = 1 - ask for how to proceed (you can see the actual behaviour if you pass params with "sep"=",")
 
 ## TODO - Version 0.3
 
 - [ ] Add a GUI
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
 - [ ] Make pip-installable, add a setup.py
+
