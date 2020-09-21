@@ -29,6 +29,17 @@ def test_load_csv_with_params():
     assert df_1.index.name == df_1.index.name == "str_3"
 
 
+def test_load_csv_with_one_col_only(monkeypatch):
+    monkeypatch.setattr("builtins.input", lambda _: "y")
+    df_1, df_2 = foos.load_csv(
+        "tests/df_1_file.csv",
+        "tests/df_2_file.csv",
+        load_params_1={"sep": ";"},
+        load_params_2={"sep": ";"},
+    )
+    assert df_1.shape == df_2.shape == (2, 1)
+
+
 def test_load_files_with_valid_index_col():
     df_1, df_2 = foos.load_csv(
         "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="str_3"
@@ -45,7 +56,7 @@ def test_load_files_with_invalid_index_col(capsys):
             "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="date_1"
         )
         captured = capsys.readouterr()
-        assert "Error. Column date_1" in captured.out
+        assert "Error. Column date_1" in captured.err
         assert exc_info.type is SystemExit
 
 

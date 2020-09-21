@@ -22,8 +22,7 @@ def load_csv(
         try:
             os.path.exists(path)
         except FileNotFoundError:
-            print(f"Sorry, path {path} does not exist.")
-            sys.exit()
+            sys.exit(f"Sorry, path {path} does not exist. Try again, please.")
 
         if params:
             df = pd.read_csv(path, **params)
@@ -33,6 +32,13 @@ def load_csv(
                 if len(df.columns) > 1:
                     break
         print(f"- DF loaded, with original shape of {df.shape}")
+
+        if df.shape[1] == 1:
+            user_input = get_user_input("width_of_one")
+            if user_input == "y":
+                pass
+            elif user_input == "n":
+                sys.exit("Try again, please.")
 
         if index_col:
             try:
@@ -56,15 +62,15 @@ def _set_and_sort_index_col(
     within `load_files`.
     """
     if index_col not in df.columns:
-        print(f"Sorry, column {index_col} not found in file {path}.")
-        sys.exit()
+        sys.exit(f"Sorry, column {index_col} not found in file {path}.")
 
     elif df[index_col].duplicated().sum() > 0:
-        print(
-            f"Error. Column {index_col} has duplicate values",
-            "and cannot be used as dataframe index.",
+        sys.exit(
+            (
+                f"Error. Column {index_col} has duplicate values",
+                "and cannot be used as dataframe index.",
+            )
         )
-        sys.exit()
     else:
         df = df.set_index(index_col, drop=True).sort_index()
         return df
@@ -140,6 +146,12 @@ def get_user_input(case: str) -> str:
             "\nDo you wish to save an XLSX file indicating all the "
             "differing values in tabular format? It will be saved "
             "into the same folder as from where DF_1 has been loaded."
+        )
+    elif case == "width_of_one":
+        INPUT_STRING = (
+            "\nThe loaded dataframe has only one column. Maybe you have "
+            "to specify different load parameters. If you nevertheless "
+            " want to proceed, please press 'y'. Press 'n' to abort."
         )
 
     user_input = None
