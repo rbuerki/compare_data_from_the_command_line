@@ -30,7 +30,7 @@ Only if this strict check fails, the edge-case handling process is run ending wi
 
 ## Installation
 
-Quick and dirty: Simply copy the `compare_df` folder and it's contents from inside der `src` directory in this repo to your local machine and make it available where ever you need it. You can launch the app from the CLI in the parent folder of the package.
+Quick and dirty: Simply copy the `compare_df` folder and it's contents from this repo to your local machine and make it available where ever you need it. You can launch the app from the CLI in the parent folder of the package.
 
 For the whole thing to work, you'll need `Python >= 3.6`, a version of `Pandas` that's not too old, and either the `xlsx_writer` or `openpyxl` libraries for saving the final output to excel.
 
