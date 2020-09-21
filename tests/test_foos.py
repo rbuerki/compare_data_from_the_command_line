@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.compare_df import foos  # noqa
+from compare_df import foos  # noqa
 
 # from compare_df.__main__ import main  # noqa TODO, main test fails
 

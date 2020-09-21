@@ -1,7 +1,7 @@
 import argparse
 from typing import Dict, Optional
 
-from . import foos
+from compare_df import foos
 
 
 arg_parser = argparse.ArgumentParser(
