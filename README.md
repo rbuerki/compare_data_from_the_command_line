@@ -4,13 +4,13 @@
 
 ## Intro
 
-This application loads tabular data from two CSV-files into pandas dataframes and compares the data. If differences are found, it prints a summary with the count of differing values per column, and optionally saves a new dataframe with boolean values indicating the location of the differences.
+This application loads tabular data from two CSV-files into pandas dataframes and compares them. If differences are found, it prints a summary with the count of differing values per column, and optionally, saves XLSX table with boolean values indicating the location of these differences.
 
-### What for?
+### Why that?
 
 _And what's so special about this? Why not just use Pandas built-in `df.equals(df)` functionality or perfrom a boolean check with `(df != df).any()` or `df.ne(df)`?_
 
-Now, first, here we've got a command line interface, making it a very handy tool for a (super) quick check. But what makes it really special, is it's ability to handle a couple of edge cases. (And believe me, I have encountered all of them in my daily work.)
+Now, first, here we've got a **command line interface**, making it a very handy tool for a (super) quick check. But what makes it really special, is it's ability to handle **a couple of edge cases**. (And believe me, I have encountered all of them for real in my daily work.)
 
 It starts with **different encodings, special formatting and so on**: When starting the process from the CLI, you can enter all those special parameters that will then be passed to pandas' `pd.load_csv()` function for each of the two dataframes separately.
 
@@ -22,17 +22,17 @@ Finally the app will even try to ensure that the **dtypes of the differente colu
 
 ### Behaviour, Functionality
 
-To be effective the index values and column names of the two dataframes have to to consistent. If these are floating the comparison will fail. (One consequence: New datapoints have to be assigned to new index values.)
+To be effective the index values and column names of the two dataframes have to be consistent respective to the contained values. If they are not the comparison will fail. (One consequence for example: If new datapoints are added to a table, they have to be assigned to new index values, the old index values must persist. Only these older index values will be compared with an earlier version of the table.)
 
 The app runs two equality checks. The first is run at the start of the process for dataframes of identical shape with the Pandas' `pd.equals()` function. It is a "strict" comparison that also takes into account the datatypes of the values.
 
-Only if this fails, the edge-case handling get's activated and a final second check is run, this time with a boolean comparison. That one is less strict and compares values independent of their datatypes. (But you'll get a warning anyway if they differ.)
+Only if this strict check fails, the edge-case handling process is run ending with a final second equality check. This time with a boolean comparison. That one is less strict and compares values independent of their datatypes. (But you'll get a warning anyway if the dtypes differ.)
 
 ## Installation and Usage
 
 Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df` folder in this repo to your local machine and make it available where ever you need it.
 
-Then you can start the process from the command line, and, in the simplest of use cases, you'll simply pass the path strings / names of the two CSV-files containing the data that you want to compare:
+You can start the process from the command line, and, in the simplest of use cases, you'll simply pass the path strings / names of the two CSV-files containing the data that you want to compare:
 
 ```python
 python compare_df {"source_file_1"} {"source_file_2"}
@@ -51,7 +51,7 @@ A full example could then look as follows:
 python compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
 ```
 
-You'll need Python >= 3.6 and a version of Pandas that's not too old.
+For the whole thing to work, you'll need `Python >= 3.6`, a version of `Pandas` that's not too old, and either `xlsx_writer` or `pyarrow` for saving the final output to xlsx.
 
 ## Aknowledgements / Resources
 
@@ -63,33 +63,10 @@ This project was essentially a little playground for experimenting with test dri
 
 ## TODO - WIP
 
-- [ ] Add function with output of difference 'coordinates' / save diff_df
-- [ ] Add a WARNING when n cols = 1 - ask for next steps
+- [ ] Add a WARNING when n cols = 1 - ask for how to proceed (you can see the actual behaviour if you pass params with "sep"=",")
 
-## TODO - v0.3
+## TODO - Version 0.3
 
 - [ ] Add a GUI
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
-- [ ] Prio 2: Add a setup.py
-- [ ] Prio 2: Use the file names of the dataframes for output messages
-- [ ] Maybe: Add logging to file (for exact debugging)
-
-<!-- # TODO I could use this for logging? Or delete it ...
-# def check_initial_structural_differences(
-#     df_1: pd.DataFrame, df_2: pd.DataFrame
-# ):
-#     """Check if index, columns, datatypes are equal and
-#     print info to console.
-#     """
-#     shape_check = df_1.shape == df_2.shape
-#     col_check = df_1.columns == df_2.columns
-#     idx_check = df_1.index == df_2.index
-#     dtype_check = df_1.dtypes == df_2.dtypes
-
-#     if not shape_check or not dtype_check:
-#         print("\nInitial quickcheck for structural differences:")
-#         print(f"Dataframe Shapes are identical: {shape_check}")
-#         print(f"Column names are identical: {col_check}")
-#         print(f"Indexes are identical: {idx_check}")
-#         print(f"Data types are identical: {dtype_check}")
-#         print("We will try to handle that ...\n") -->
+- [ ] Make pip-installable, add a setup.py

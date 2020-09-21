@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import pytest
 
 from compare_df import foos  # noqa
@@ -87,7 +88,7 @@ def test_check_for_identical_dtypes(df_1_base, df_2_base):
 
 def test_get_user_input(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
-    user_input = foos.get_user_input()
+    user_input = foos.get_user_input("columns")
     assert user_input == "y"
 
 
@@ -149,13 +150,15 @@ def test_compare(df_1_base, df_2_base, capsys):
     # NaN values have to be eliminated for this test
     df_1, df_2 = foos.impute_missing_values(df_1_base, df_2_base)
 
-    foos.compare(df_1, df_1)
+    df_diff = foos.compare(df_1, df_1)
     captured = capsys.readouterr()  # Capture output
     assert "They are identical" in captured.out
+    assert df_diff is None
 
-    foos.compare(df_1, df_2)
+    df_diff = foos.compare(df_1, df_2)
     captured = capsys.readouterr()  # Capture output
     assert "They are NOT indentical." in captured.out
+    assert isinstance(df_diff, pd.DataFrame)
 
 
 # def test_main(capsys):

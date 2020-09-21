@@ -76,7 +76,7 @@ def main(
     else:
         if foos.check_for_same_width:
             if not foos.check_for_identical_column_names(df_1, df_2):
-                user_input = foos.get_user_input()
+                user_input = foos.get_user_input("columns")
                 if user_input == "y":
                     df_1, df_2 = foos.handle_different_values(
                         "columns", df_1, df_2
@@ -94,7 +94,12 @@ def main(
         if not foos.check_for_identical_dtypes(df_1, df_2):
             df_1, df_2 = foos.enforce_dtype_identity(df_1, df_2)
 
-        foos.compare(df_1, df_2)
+        df_diff = foos.compare(df_1, df_2)
+
+        if df_diff is not None:
+            user_input = foos.get_user_input("output")
+            if user_input == "y":
+                foos.save_differences_to_xlsx(path_1, df_diff)
 
 
 if __name__ == "__main__":

@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 import sys
 from typing import Dict, List, Optional, Tuple
@@ -121,18 +122,25 @@ def check_for_identical_dtypes(df_1: pd.DataFrame, df_2: pd.DataFrame) -> bool:
     return list(df_1.dtypes.values) == list(df_2.dtypes.values)
 
 
-def get_user_input() -> str:
+def get_user_input(case: str) -> str:
     """Get user input on what to do if the the dataframes are of same
     width, but the column names differ.
     """
-    INPUT_STRING = (
-        "The dataframes have the same number of columns, but their "
-        "names differ. If you want to drop the non-overlapping "
-        "columns for the comparison, please press 'y'. "
-        "If you think the data structure of the dataframes"
-        "is identical and want to enforce the column names to "
-        "be identical for a 'full' comparison, please press 'n'."
-    )
+    if case == "columns":
+        INPUT_STRING = (
+            "\nThe dataframes have the same number of columns, but their "
+            "names differ. If you want to drop the non-overlapping "
+            "columns for the comparison, please press 'y'. "
+            "If you think the data structure of the dataframes"
+            "is identical and want to enforce the column names to "
+            "be identical for a 'full' comparison, please press 'n'."
+        )
+    elif case == "output":
+        INPUT_STRING = (
+            "\nDo you wish to save an XLSX file indicating all the "
+            "differing values in tabular format? It will be saved "
+            "into the same folder as from where DF_1 has been loaded."
+        )
 
     user_input = None
     while user_input != "y" or user_input != "n":
@@ -140,9 +148,7 @@ def get_user_input() -> str:
         if user_input == "y":
             break
         elif user_input == "n":
-            return user_input
             break
-            print("Please press 'y' or 'n'.")
     return user_input
 
 
@@ -179,7 +185,7 @@ def enforce_dtype_identity(
                 if list(df_1.columns).index(col) in diff_list
             ]
             message = (
-                f"Not possible to enforce dtype identity "
+                f"\nNot possible to enforce dtype identity "
                 f"on following column(s): {problematic_columns}. "
                 f"Process continues with differing dtypes. "
             )
@@ -279,7 +285,7 @@ def sort_columns(
     return df_1, df_2
 
 
-def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
+def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> Optional[pd.DataFrame]:
     """Compare if dataframe values are identical, if not, print a
     summary of the differences.
 
@@ -288,15 +294,31 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> None:
     NaN values in a longer / wider dataframe can alter dtypes even
     after having been eliminated during previous steps.
     """
-    if (df_1 != df_2).sum().sum() == 0:
+    df_diff = df_1.ne(df_2)
+    if df_diff.sum().sum() == 0:  # TODO
         print(
             f"\nDataframes successfully compared with shape {df_1.shape}.",
             " They are identical.",
         )
+        return None
     else:
-        df_diff = df_1 != df_2
         print(
             f"\nDataframes successfully compared with shape {df_1.shape}.",
             "They are NOT indentical.",
             f"\n# of differences per column:\n\n{df_diff.sum()}",
         )
+        return df_diff
+
+
+def save_differences_to_xlsx(path_1: str, df_diff: pd.DataFrame) -> None:
+    """Save a boolean dataframe indicating all differences as "True". The
+    file is saved to XLSX format with a timestamped file name to the same
+    folder as to where DF_1 was loaded from.
+    """
+    out_path = os.path.split(path_1)[0]
+    out_name = f"compare_df_diff_output_{dt.datetime.strftime(dt.datetime.now(), '%Y-%m-%d-%H-%M-%S')}.xlsx"
+    full_out_path = os.path.join(out_path, out_name)
+    writer = pd.ExcelWriter(full_out_path)
+    df_diff.to_excel(writer)
+    writer.save()
+    print(f"\nOutput saved to: \n{os.path.abspath(full_out_path)}")
