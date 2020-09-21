@@ -1,6 +1,6 @@
 # Compare Data From The Command Line
 
-(Side project, Summer 2020)
+(Side project, Summer 2020, actual version: 0.2.0)
 
 ## Intro
 
@@ -28,30 +28,32 @@ The app runs two equality checks. The first is run at the start of the process f
 
 Only if this strict check fails, the edge-case handling process is run ending with a final second equality check. This time with a boolean comparison. That one is less strict and compares values independent of their datatypes. (But you'll get a warning anyway if the dtypes differ.)
 
-## Installation and Usage
+## Installation
 
-Sorry, no "pip install" functionality implemented yet. Simply copy the `compare_df` folder in this repo to your local machine and make it available where ever you need it.
+Quick and dirty: Simply copy the `compare_df` folder and it's contents from inside der `src` directory in this repo to your local machine and make it available where ever you need it. You can launch the app from the CLI in the parent folder of the package.
 
-You can start the process from the command line, and, in the simplest of use cases, you'll simply pass the path strings / names of the two CSV-files containing the data that you want to compare:
+For the whole thing to work, you'll need `Python >= 3.6`, a version of `Pandas` that's not too old, and either the `xlsx_writer` or `openpyxl` libraries for saving the final output to excel.
+
+## Usage
+
+You  start the process from the command line, in the parent folder of the `compare_df` directory. In the simplest of use cases, you'll just pass the path strings / names of the two CSV-files containing the data you want to compare:
 
 ```python
-python compare_df {"source_file_1"} {"source_file_2"}
+python compare_df {"path_to_source_file_1"} {"path_to_source_file_2"}
 ```
 
 If you want to define a specific column to be used as index, you can do this with the prefix `-i` or `--index_col`.
 
-If things get nasty and you have to pass some extra load params to get your dataframes properly loaded, you can pass the respective key-value-pairs as strings after the following prefixes (depending on the dataframe):
+If things get nasty and you have to pass some extra load params to get your dataframes properly loaded, you can pass the respective key-value-pairs as strings each following these prefixes (depending on the dataframe):
 
-- `-l_1` / `--load_params_1` (first file)
-- `-l_2` / `--load_params_2` (second file)
+- `-l_1` / `--load_params_1` (for the first file)
+- `-l_2` / `--load_params_2` (for the second file)
 
-A full example could then look as follows:
+A full example can look as follows:
 
 ```python
 python compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
 ```
-
-For the whole thing to work, you'll need `Python >= 3.6`, a version of `Pandas` that's not too old, and either `xlsx_writer` or `pyarrow` for saving the final output to xlsx.
 
 ## Aknowledgements / Resources
 
@@ -61,10 +63,7 @@ This project was essentially a little playground for experimenting with test dri
 - [Article on Command Line Interfaces with Argparse](https://realpython.com/command-line-interfaces-python-argparse/) on RealPython
 - [Stackoverflow topic on parsing to a dictionary](https://stackoverflow.com/questions/29986185/python-argparse-dict-arg) (could do even more sophisticated)
 
-
 ## TODO - Version 0.3
 
-- [ ] Add a GUI
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
-- [ ] Make pip-installable, add a setup.py
-
+- [ ] Add a simple GUI
