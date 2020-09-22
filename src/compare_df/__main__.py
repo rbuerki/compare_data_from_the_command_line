@@ -55,7 +55,7 @@ def main(
             both DFs and cannot have duplicate alues. Defaults to None.
 
     Returns:
-        df_diff: Boolean dataframe indicating the exact positions of 
+        df_diff: Boolean dataframe indicating the exact positions of
             the differing values ("True"). If the DFs are totally equal
             an empty dataframe ist returned.
         df_1: The final state of DF_1 after processing
