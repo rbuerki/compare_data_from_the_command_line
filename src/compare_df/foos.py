@@ -313,14 +313,13 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> Optional[pd.DataFrame]:
             f"\nDataframes successfully compared with shape {df_1.shape}.",
             " They are identical.",
         )
-        return None
     else:
         print(
             f"\nDataframes successfully compared with shape {df_1.shape}.",
             "They are NOT indentical.",
             f"\n# of differences per column:\n\n{df_diff.sum()}",
         )
-        return df_diff
+    return df_diff
 
 
 def save_differences_to_xlsx(path_1: str, df_diff: pd.DataFrame) -> None:
@@ -329,7 +328,7 @@ def save_differences_to_xlsx(path_1: str, df_diff: pd.DataFrame) -> None:
     folder as to where DF_1 was loaded from.
     """
     out_path = os.path.split(path_1)[0]
-    out_name = f"compare_df_diff_output_{dt.datetime.strftime(dt.datetime.now(), '%Y-%m-%d-%H-%M-%S')}.xlsx"
+    out_name = f"compare_df_diff_output_{dt.datetime.strftime(dt.datetime.now(), '%Y-%m-%d-%H-%M-%S')}.xlsx"  # noqa: B950
     full_out_path = os.path.join(out_path, out_name)
     writer = pd.ExcelWriter(full_out_path)
     df_diff.to_excel(writer)

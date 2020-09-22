@@ -1,5 +1,31 @@
+"""Compare Data From The Command Line
+This is the script version.
+
+Usage:
+------
+    $ compare_df [options] [path_1] [path_2]
+
+Available options are:
+    -l_1, --load_params_1   Load params for file 1
+    -l_2, --load_params_2   Load params for file 2
+    -i, --index_col         Name of column to be used as index
+
+Contact:
+--------
+Author: Raphael Bürki
+https://www.linkedin.com/in/raphael-buerki/
+More information is available at:
+https://github.com/rbuerki/compare_data_from_the_command_line/
+
+Version:
+--------
+- raph-compare-df: v0.2.0
+"""
+
+
 import argparse
-from typing import Dict, Optional
+
+import pandas as pd
 
 from compare_df import foos
 
@@ -40,7 +66,6 @@ arg_parser.add_argument(
     ),
     default=None,
 )
-
 arg_parser.add_argument(
     "-i",
     "--index_col",
@@ -52,17 +77,30 @@ arg_parser.add_argument(
 )
 
 
-def main(
-    path_1: str,
-    path_2: str,
-    load_params_1: Optional[Dict[str, str]],
-    load_params_2: Optional[Dict[str, str]],
-    index_col: Optional[str],
-):
+def main() -> None:
+    """Run the full comparison process for two CSV files. Report
+    progress and results.Offer the option to save a boolean dataframe
+    to excel that indicates the exact position of differing values.
+    """
+    args = arg_parser.parse_args()
+
+    path_1 = args.path_1
+    path_2 = args.path_2
+    if args.load_params_1:
+        load_params_1 = dict(args.load_params_1)
+    else:
+        load_params_1 = args.load_params_1
+    if args.load_params_2:
+        load_params_2 = dict(args.load_params_2)
+    else:
+        load_params_2 = args.load_params_2
+    index_col = args.index_col
+
     df_1, df_2 = foos.load_csv(
         path_1, path_2, load_params_1, load_params_2, index_col
     )
     df_1, df_2 = foos.impute_missing_values(df_1, df_2)
+    df_diff = pd.DataFrame()
 
     if foos.check_if_dataframes_are_equal(df_1, df_2):
         print("Successfully compared, DFs are identical.")
@@ -89,25 +127,11 @@ def main(
 
         df_diff = foos.compare(df_1, df_2)
 
-        if df_diff is not None:
+        if df_diff.sum().sum() > 0:
             user_input = foos.get_user_input("output")
             if user_input == "y":
                 foos.save_differences_to_xlsx(path_1, df_diff)
 
 
 if __name__ == "__main__":
-    args = arg_parser.parse_args()
-
-    path_1 = args.path_1
-    path_2 = args.path_2
-    if args.load_params_1:
-        load_params_1 = dict(args.load_params_1)
-    else:
-        load_params_1 = args.load_params_1
-    if args.load_params_2:
-        load_params_2 = dict(args.load_params_2)
-    else:
-        load_params_2 = args.load_params_2
-    index_col = args.index_col
-
-    main(path_1, path_2, load_params_1, load_params_2, index_col)
+    main()

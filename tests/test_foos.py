@@ -164,12 +164,12 @@ def test_compare(df_1_base, df_2_base, capsys):
     df_diff = foos.compare(df_1, df_1)
     captured = capsys.readouterr()  # Capture output
     assert "They are identical" in captured.out
-    assert df_diff is None
+    assert df_diff.sum().sum() == 0
 
     df_diff = foos.compare(df_1, df_2)
     captured = capsys.readouterr()  # Capture output
     assert "They are NOT indentical." in captured.out
-    assert isinstance(df_diff, pd.DataFrame)
+    assert df_diff.sum().sum() > 0
 
 
 # def test_main(capsys):
