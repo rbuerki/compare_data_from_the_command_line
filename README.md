@@ -4,26 +4,26 @@
 
 ## Intro
 
-This application loads tabular data from two CSV-files into pandas dataframes and compares them. If a full comparison with Pandas' built-in `df.equals(df)` is not possible the data is pre-processed step-by-step to enable a boolean matching with Pandas' `df.ne(df)` that is as close as possible.
+This application loads tabular data from two CSV-files into pandas dataframes and compares them. If a full comparison with Pandas' built-in `df.equals(df)` is not possible the data is pre-processed step-by-step to enable a boolean matching using Pandas' `df.ne(df)` that is as close as possible.
 
 The process tries to catch and handle many edge cases that I have encountered in my daily work. Where necessary / where it makes sense, the user is asked on how to proceed with the pre-processing.
 
 ## Features
 
-The package can be used as:
+Contrary to the project's title, the package can now be used either as:
 
 1) an importable library, for example to be used within a jupyter notebook
 2) a handy stand-alone CLI tool for super-quick data checks
 
-It returns:
+It results in:
 
 - (Both versions) Standard-out process report and summary with the count of differing values per column (both versions)
-- (Both versions)Possibility to save a boolean dataframe to excel, indicating the exact locations of these differing values (both versions). 
-- (Library only) Return of 3 dataframes: The boolean 'df_diff' and the final states of the two processed input files.
+- (Both versions) Possibility to save a boolean dataframe to excel, indicating the exact locations of these differing values (both versions)
+- (Library version only) Return of 3 dataframes: The boolean 'df_diff' and the final states of the two processed input files
 
-Special features for processing (the same in both versions) are:
+Special features for processing are (same for both versions):
 
-- Possiblity to define special load parameters to be passed to Pandas' `pd.load_csv()` function, specifically for each dataframe
+- Possiblity to define specific load parameters for each file to be passed to Pandas' `read_csv` function
 - Possiblity to define a special column to be used as index
 - Possiblity to enforce the same column names if these differ but the width of the 2 dataframes is the same
 - Handling of different shapes by finding matching subsets in the columns / indexes for the comparison
@@ -51,7 +51,7 @@ Available options are:
 | -l_2, --load_params_2 | Load params for file at path_2     |
 | -i, --index_col       | Name of column to be used as index |
 
-Note: The optional load params have to be passed as single key-value-pairs in string format, each of them separatly for the respective dataframe.
+Note: The optional load params have to be passed as single key-value-pairs in string format, each of them separatly for the respective dataframe. You can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
 
 A full example can look as follows:
 
@@ -71,7 +71,7 @@ compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l
                                             )
 ```
 
-Note: Contrary to the CLI version the optional load params are passed as dicts with key-value-pairs in string format.
+Note: Contrary to the CLI version the optional load params are passed as dicts with key-value-pairs in string format. Again, you can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
 
 A full example of calling the main() function can look as follows:
 
@@ -90,9 +90,18 @@ df_diff, df_1, df_2 = compare_df.main("data/file_manual.csv",
 
 ## Installation
 
-Quick and dirty: Simply copy the `compare_df` folder and it's contents from this repo to your local machine and make it available where ever you need it. You can launch the app from the CLI in the parent folder of the package.
+Quick & dirty:
 
-For the whole thing to work, you'll need `Python >= 3.6`, a version of `Pandas` that's not too old, and either the `xlsx_writer` or `openpyxl` libraries for saving the final output to excel.
+- Clone or copy this repo to your machine
+- Activate a virtual envirenment of your choice (make sure you have pip installed)
+- Open a terminal, navigate to the repo's top-level folder (where `setup.py` is located)
+- Run the following command:
+
+```shell
+pip install .
+```
+
+Dependencies: `Python >= 3.6`, `Pandas` and `xlsx_writer` (or alternatively `openpyxl`).
 
 ## Aknowledgements / Resources
 
@@ -108,7 +117,7 @@ This project was essentially a little playground for experimenting with test dri
 
 Planned new features for future versions
 
-- [ ] Optimize installation, add build / dist
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
+- [ ] Enable proper installation, add build / dist
 - [ ] Add a simple GUI (using a separate [setuptools entry point](https://setuptools.readthedocs.io/en/latest/setuptools.html#id16))
 - [ ] Make an executable with PyInstaller (see [here](https://realpython.com/pyinstaller-python/#distribution-problems))
