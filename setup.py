@@ -1,11 +1,15 @@
+import os
 import setuptools
 
-with open("README.md", "r") as fh:
+from src.compare_df import __version__ as version
+
+readme = os.path.join(os.path.dirname(__file__), "README.md")
+with open(readme, "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="raph-compare-df",
-    version="0.2.0",
+    version=version,
     author="Raphael Bürki",
     author_email="r2d4@bluewin.ch",
     description="An App to Compare Data from the Command Line",
