@@ -92,7 +92,7 @@ df_diff, df_1, df_2 = compare_df.main("data/file_manual.csv",
 
 Quick & dirty:
 
-- Clone or copy this repo to your machine
+- Clone or fork this repo to your machine
 - Activate a virtual envirenment of your choice (make sure you have pip installed)
 - Open a terminal, navigate to the repo's top-level folder (where `setup.py` is located)
 - Run the following command:

@@ -47,9 +47,9 @@ arg_parser.add_argument(
     type=lambda kv: kv.split("="),
     dest="load_params_1",
     help=(
-        "A DF_1-specific key-value-pair to be passed as argument to",
-        "`pd.read_csv()`, e.g. `'encoding'='UFT-8'`. You can pass multiple pairs.",
-        "Defaults to None.",
+        "A DF_1-specific key-value-pair to be passed as argument to "
+        "`pd.read_csv()`, e.g.`'encoding'='UFT-8'`. You can pass multiple pairs. "
+        "Defaults to None. "
     ),
     default=None,
 )
@@ -60,9 +60,9 @@ arg_parser.add_argument(
     type=lambda kv: kv.split("="),
     dest="load_params_2",
     help=(
-        "A DF_2-specific key-value-pair to be passed as argument to",
-        "`pd.read_csv()`, e.g. `'encoding'='UFT-8'`. You can pass multiple pairs.",
-        "Defaults to None.",
+        "A DF_2-specific key-value-pair to be passed as argument to "
+        "`pd.read_csv()`, e.g. 'encoding'='UFT-8'`. You can pass multiple pairs. "
+        "Defaults to None."
     ),
     default=None,
 )
@@ -70,8 +70,8 @@ arg_parser.add_argument(
     "-i",
     "--index_col",
     help=(
-        "Name of a column to use as index, dropping the original index.",
-        "Is the same for both dataframes. Defaults to None.",
+        "Name of a column to use as index, dropping the original index. "
+        "Is the same for both dataframes. Defaults to None."
     ),
     default=None,
 )

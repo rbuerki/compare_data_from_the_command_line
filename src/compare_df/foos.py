@@ -148,7 +148,7 @@ def get_user_input(case: str) -> str:
             "differing values in tabular format? It will be saved "
             "into the same folder as from where DF_1 has been loaded."
         )
-    elif case == "width_of_one":
+    else:
         INPUT_STRING = (
             "\nThe loaded dataframe has only one column. Maybe you have "
             "to specify different load parameters. If you nevertheless "
@@ -235,7 +235,7 @@ def _align_dtypes(
 
 def handle_different_values(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
-) -> Tuple[pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Check if the dataframes have differing values in the `columns`
     or the `index`, depending on the passed dimension. If so, output a
     warning and list the respective values. Return the dataframes with
@@ -270,7 +270,7 @@ def handle_different_values(
 
 def _get_subsets(
     dim: str, df_1: pd.DataFrame, df_2: pd.DataFrame
-) -> Tuple[set, set, set]:
+) -> Tuple[set, set]:
     """Return two separate subsets of `columns` or `index` of the
     dataframes, depending on the passed dimension. The first subsets
     is consisting of values exclusive to the first dataframe, the
@@ -298,7 +298,7 @@ def sort_columns(
     return df_1, df_2
 
 
-def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> Optional[pd.DataFrame]:
+def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> pd.DataFrame:
     """Compare if dataframe values are identical, if not, print a
     summary of the differences.
 
