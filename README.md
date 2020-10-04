@@ -53,7 +53,7 @@ Available options are:
 
 Note: The optional load params have to be passed as single key-value-pairs in string format, each of them separatly for the respective dataframe. You can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
 
-A full example can look as follows:
+A full example could look as follows:
 
 ```shell
 compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l_1 "sep"=";" -l_2 "encoding"="UTF-8" -l_2 "sep"=";" -i "customer_ID"
@@ -73,7 +73,7 @@ compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l
 
 Note: Contrary to the CLI version the optional load params are passed as dicts with key-value-pairs in string format. Again, you can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
 
-A full example of calling the main() function can look as follows:
+A full example of calling the main() function could look as follows:
 
 ```python
 df_diff, df_1, df_2 = compare_df.main("data/file_manual.csv",

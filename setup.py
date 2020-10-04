@@ -18,7 +18,7 @@ setuptools.setup(
     url="https://github.com/rbuerki/compare_data_from_the_command_line/",
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
-    entry_points={"console_scripts": ["compare_df = compare_df.cli:main"]},
+    entry_points={"console_scripts": ["compare_df = compare_df.cli:cli"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
