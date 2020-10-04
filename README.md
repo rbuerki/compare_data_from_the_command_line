@@ -64,11 +64,11 @@ compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l
 ```python
 >>> import compare_df
 >>> df_diff, df_1, df_2 = compare_df.main('path_1',
-                                            'path_2',
-                                            ['load_params_1'],
-                                            ['load_params_2'],
-                                            ['index_col']
-                                            )
+                                          'path_2',
+                                          ['load_params_1'],
+                                          ['load_params_2'],
+                                          ['index_col']
+                                          )
 ```
 
 Note: Contrary to the CLI version the optional load params are passed as dicts with key-value-pairs in string format. Again, you can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
