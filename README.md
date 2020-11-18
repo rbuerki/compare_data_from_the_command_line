@@ -4,9 +4,9 @@
 
 ## Intro
 
-This application loads tabular data from two CSV-files into pandas dataframes and compares them. If a full comparison with Pandas' built-in `df.equals(df)` is not possible the data is pre-processed step-by-step to enable a boolean matching using Pandas' `df.ne(df)` that is as close as possible.
+This application loads tabular data from two CSV-files into Pandas DataFrames and compares them. If a full comparison with Pandas' built-in `df.equals(df)` is not possible the data is pre-processed step-by-step to enable a boolean matching that is as close as possible using Pandas' `df.ne(df)`.
 
-The process tries to catch and handle many edge cases that I have encountered in my daily work. Where necessary / where it makes sense, the user is asked on how to proceed with the pre-processing.
+The app tries to catch and handle many edge cases that I have encountered in my daily work. If necessary, the user is asked on how to proceed with the pre-processing.
 
 ## Features
 
@@ -17,14 +17,14 @@ Contrary to the project's title, the package can now be used either as:
 
 It results in:
 
-- (Both versions) Standard-out process report and summary with the count of differing values per column (both versions)
-- (Both versions) Possibility to save a boolean dataframe to excel, indicating the exact locations of these differing values (both versions)
+- Standard-out process report and summary with the count of differing values per column (both versions)
+- Option to save a boolean dataframe to excel, indicating the exact locations of these differing values (both versions)
 - (Library version only) Return of 3 dataframes: The boolean 'df_diff' and the final states of the two processed input files
 
 Special features for processing are (same for both versions):
 
-- Possiblity to define specific load parameters for each file to be passed to Pandas' `read_csv` function
-- Possiblity to define a special column to be used as index
+- Possiblity to define specific load parameters for each file that will be passed to Pandas' `read_csv` function
+- Possiblity to define a specific column to be used as the index
 - Possiblity to enforce the same column names if these differ but the width of the 2 dataframes is the same
 - Handling of different shapes by finding matching subsets in the columns / indexes for the comparison
 - As far as possible: Handling of different dtypes as long as they are not of `object` type
@@ -32,8 +32,8 @@ Special features for processing are (same for both versions):
 ## Data prerequisites
 
 - For the moment the app accepts CSV files only.
-- Index values and column names of the two tables have to be consistent respective to the contained values. If they are not the comparison will fail. (One consequence for example: If new datapoints are added to a table, they have to be assigned to new index values while the old index values must persist. Only so these older index values can then be compared with an earlier version of the table.)
-- If you pass a specific column name to be used as index, make sure it appears in both dataframes (if not, use the load_params to rename columns) and that they have no duplicate values.
+- Index values and column names of the two tables have to be consistent respective to the values they contain. Else a comparison is not possible. (For example this means: If new datapoints are added to a table, they have to be assigned to new index values while the existing index values are not allowed to change. Else they can not be compared with an earlier version of the table.)
+- If you pass a specific column name to be used as index, make sure it exists in both dataframes (if not, use the load_params to rename columns). Also make sure the index columns have no duplicate values.
 
 ## Usage
 
@@ -63,12 +63,13 @@ compare_df "data/file_manual.csv" "data/file_auto.csv" -l_1 "engine"="python" -l
 
 ```python
 >>> import compare_df
->>> df_diff, df_1, df_2 = compare_df.main('path_1',
-                                          'path_2',
-                                          ['load_params_1'],
-                                          ['load_params_2'],
-                                          ['index_col']
-                                          )
+>>> df_diff, df_1, df_2 = compare_df.main(
+    'path_1',
+    'path_2',
+    ['load_params_1'],
+    ['load_params_2'],
+    ['index_col']
+)
 ```
 
 Note: Contrary to the CLI version the optional load params are passed as dicts with key-value-pairs in string format. Again, you can pass all the args that are accepted by [pandas.read_csv](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html).
@@ -76,16 +77,13 @@ Note: Contrary to the CLI version the optional load params are passed as dicts w
 A full example of calling the main() function could look as follows:
 
 ```python
-df_diff, df_1, df_2 = compare_df.main("data/file_manual.csv",
-                                      "data/file_auto.csv",
-                                      load_params_1={"engine": "python",
-                                                     "sep": ";"
-                                                     },
-                                      load_params_2={"encoding": "UTF-8",
-                                                     "sep": ";"
-                                                     },
-                                      index_col="customer_ID"
-                                      )
+df_diff, df_1, df_2 = compare_df.main(
+    "data/file_manual.csv",
+    "data/file_auto.csv",
+    load_params_1={"engine": "python", "sep": ";"},
+    load_params_2={"encoding": "UTF-8", "sep": ";"},
+    index_col="customer_ID"
+)
 ```
 
 ## Installation
@@ -115,7 +113,7 @@ This project was essentially a little playground for experimenting with test dri
 
 ## TODO
 
-Planned new features for future versions
+Possible new features for future versions
 
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
 - [ ] Enable proper installation, add build / dist
