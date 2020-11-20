@@ -146,7 +146,8 @@ def get_user_input(case: str) -> str:
         INPUT_STRING = (
             "\nDo you wish to save an XLSX file indicating all the "
             "differing values in tabular format? It will be saved "
-            "into the same folder as from where DF_1 has been loaded."
+            "into the same folder as from where DF_1 has been loaded. "
+            "Please press 'y' or 'n'."
         )
     else:
         INPUT_STRING = (
