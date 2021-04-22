@@ -70,7 +70,7 @@ def main(
     if foos.check_if_dataframes_are_equal(df_1, df_2):
         print("Successfully compared, DFs are identical.")
     else:
-        if foos.check_for_same_width:
+        if foos.check_for_same_width(df_1, df_2):
             if not foos.check_for_identical_column_names(df_1, df_2):
                 user_input = foos.get_user_input("columns")
                 if user_input == "y":
