@@ -113,9 +113,10 @@ This project was essentially a little playground for experimenting with test dri
 
 ## TODO
 
-Possible new features for future versions
+Possible new features for future versions:
 
 - [ ] Add XLSX support --> testcase "druckfiles" in dev folder
+- [ ] Add the possibility to compare existing df in the library version (so they have not be files read from path)
 - [ ] Enable proper installation, add build / dist
 - [ ] Add a simple GUI (using a separate [setuptools entry point](https://setuptools.readthedocs.io/en/latest/setuptools.html#id16))
 - [ ] Make an executable with PyInstaller (see [here](https://realpython.com/pyinstaller-python/#distribution-problems))

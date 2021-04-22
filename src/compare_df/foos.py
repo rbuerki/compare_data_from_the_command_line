@@ -68,7 +68,7 @@ def _set_and_sort_index_col(
     elif df[index_col].duplicated().sum() > 0:
         raise SystemExit(
             (
-                f"Error. Column {index_col} has duplicate values",
+                f"Error. Column {index_col} contains duplicate values",
                 "and cannot be used as dataframe index.",
             )
         )
@@ -136,27 +136,27 @@ def get_user_input(case: str) -> str:
     if case == "columns":
         INPUT_STRING = (
             "\nThe dataframes have the same number of columns, but their "
-            "names differ. If you want to drop the non-overlapping "
+            "names differ. \nIf you want to drop the non-overlapping "
             "columns for the comparison, please press 'y'. "
-            "If you think the data structure of the dataframes"
+            "\nIf you think the data structure of the dataframes "
             "is identical and want to enforce the column names to "
-            "be identical for a 'full' comparison, please press 'n'."
+            "be identical for a 'full' comparison, please press 'n'.\n"
         )
     elif case == "output":
         INPUT_STRING = (
             "\nDo you wish to save an XLSX file indicating all the "
             "differing values in tabular format? It will be saved "
             "into the same folder as from where DF_1 has been loaded. "
-            "Please press 'y' or 'n'."
+            "Please press 'y' or 'n'.\n"
         )
     else:
         INPUT_STRING = (
             "\nThe loaded dataframe has only one column. Maybe you have "
             "to specify different load parameters. If you nevertheless "
-            " want to proceed, please press 'y'. Press 'n' to abort."
+            "want to proceed, please press 'y'. Press 'n' to abort.\n"
         )
 
-    user_input = None
+    user_input = "xyz"
     while user_input != "y" or user_input != "n":
         user_input = input(INPUT_STRING)
         if user_input == "y":
