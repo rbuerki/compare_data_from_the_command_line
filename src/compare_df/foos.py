@@ -240,7 +240,7 @@ def handle_different_values(
     """Check if the dataframes have differing values in the `columns`
     or the `index`, depending on the passed dimension. If so, output a
     warning and list the respective values. Return the dataframes with
-    all non-matching values removed on the respecting dimension.
+    all non-matching values removed on the respective dimension.
     """
     only_in_1, only_in_2 = _get_subsets(dim, df_1, df_2)
     SUBSETS = [("DF 1", df_1, only_in_1), ("DF 2", df_2, only_in_2)]
@@ -254,9 +254,9 @@ def handle_different_values(
             name, df, subset = _tuple[0], _tuple[1], _tuple[2]
             if len(subset) > 0:
                 print(
-                    f"- {name} has {len(subset)} value(s) in {dim}",
-                    "that could not be found in the other DF",
-                    "and will be removed:",
+                    f"- {name} has {len(subset)} value(s) in the {dim}",
+                    "that could not be found in the other DF,",
+                    "so they will be removed:",
                 )
                 for val in subset:
                     print(f"  - {val}")
