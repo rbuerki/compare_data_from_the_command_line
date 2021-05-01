@@ -1,10 +1,40 @@
 import numpy as np
 import pandas as pd
 import pytest
+from pathlib import Path
 
 from compare_df import foos  # noqa
 
 # from compare_df.__main__ import main  # noqa TODO, main test fails
+
+
+@pytest.mark.parametrize(
+    "frame_1, frame_2, expected",
+    [
+        (pd.DataFrame(), pd.DataFrame(), False),
+        (Path("tests") / "df_1_file.csv", "tests/df_2_file.csv", True),
+    ],
+)
+def test_check_input_type(frame_1, frame_2, expected):
+    result = foos.check_input_type(frame_1, frame_2)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "path_1, path_2, expected",
+    [
+        (Path("df.xlsx"), "tests/df.xlsx", ".xlsx"),
+        (Path("tests") / "df_1_file.csv", "tests/df_2_file.csv", ".csv"),
+    ],
+)
+def test_indentify_file_format(path_1, path_2, expected):
+    result = foos.indentify_file_format(path_1, path_2)
+    assert result == expected
+
+
+def test_indentify_file_format_raise():
+    with pytest.raises(AssertionError):
+        foos.indentify_file_format("df.xlsx", "df.csv")
 
 
 def test_load_csv():

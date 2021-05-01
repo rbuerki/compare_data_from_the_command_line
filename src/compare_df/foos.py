@@ -1,8 +1,30 @@
 import datetime as dt
 import os
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
+
+
+def check_input_type(frame_1, frame_2):
+    if isinstance(frame_1, pd.DataFrame) and isinstance(frame_2, pd.DataFrame):
+        return False
+    if (isinstance(frame_1, str) or isinstance(frame_1, Path)) and (
+        isinstance(frame_2, str) or isinstance(frame_2, Path)
+    ):
+        return True
+
+
+def indentify_file_format(path_1, path_2):
+    suffix_1 = Path(path_1).suffix
+    suffix_2 = Path(path_2).suffix
+    if suffix_1 != suffix_2:
+        raise AssertionError("File format mismatch. Same file types expected.")
+    return suffix_1
+
+
+def load_xlsx(path_1, path_2):
+    pass  # TODO
 
 
 def load_csv(
@@ -19,7 +41,7 @@ def load_csv(
     dataframes = []
     for path, params in {path_1: load_params_1, path_2: load_params_2}.items():
         try:
-            os.path.exists(path)
+            os.path.exists(path)  # TODO: refactor to standalone, use pathlib
         except FileNotFoundError:
             raise SystemExit(
                 f"Sorry, path {path} does not exist. Try again, please."
@@ -83,8 +105,8 @@ def impute_missing_values(
     """Impute any missing values with a str, because they can
     mess up boolean comparisons.
     """
-    df_1.fillna("MISSING", inplace=True)
-    df_2.fillna("MISSING", inplace=True)
+    df_1.fillna(value="MISSING", inplace=True)
+    df_2.fillna(value="MISSING", inplace=True)
     return df_1, df_2
 
 

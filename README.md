@@ -111,12 +111,20 @@ This project was essentially a little playground for experimenting with test dri
 - [Article on how to install a local package in DEV mode](https://realpython.com/python-import/#create-and-install-a-local-package) on RealPython
 - [Setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html#id8) on how to configure the `setup.py` file in detail
 
+# WIP
+
+- Add the possibility to compare existing df in the library version
+- Add XLSX support --> testcase "druckfiles" in dev folder
+
+  - [ ] Implement load_xlsx foo
+  - [ ] Refactor load_csv foo
+  - [ ] Adapt __main__ with new workflow for loading
+  - [ ] Adapt docs and version to 0.3
+
 ## TODO
 
 Possible new features for future versions:
 
-- [ ] Add XLSX support --> testcase "druckfiles" in dev folder
-- [ ] Add the possibility to compare existing df in the library version (so they have not be files read from path)
 - [ ] Enable proper installation, add build / dist
 - [ ] Add a simple GUI (using a separate [setuptools entry point](https://setuptools.readthedocs.io/en/latest/setuptools.html#id16))
 - [ ] Make an executable with PyInstaller (see [here](https://realpython.com/pyinstaller-python/#distribution-problems))
