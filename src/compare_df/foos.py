@@ -1,7 +1,7 @@
 import datetime as dt
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 
@@ -23,53 +23,53 @@ def indentify_file_format(path_1, path_2):
     return suffix_1
 
 
-def load_xlsx(path_1, path_2):
-    pass  # TODO
-
-
-def load_csv(
-    path_1: str,
-    path_2: str,
+def load_files(
+    path_1: Union[str, Path],
+    path_2: Union[str, Path],
+    suffix: str,
     load_params_1: Optional[Dict[str, str]] = None,
     load_params_2: Optional[Dict[str, str]] = None,
-    index_col: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load data from files and return the dataframes. Optional load params
     for each dataframe can be specified (according to `pd.read_csv()`) and
     also an column name to be used as index.
     """
     dataframes = []
+    if load_params_1 is None:
+        load_params_1 = {}
+    if load_params_2 is None:
+        load_params_2 = {}
     for path, params in {path_1: load_params_1, path_2: load_params_2}.items():
         try:
-            os.path.exists(path)  # TODO: refactor to standalone, use pathlib
+            Path(path).exists()
         except FileNotFoundError:
             raise SystemExit(
-                f"Sorry, path {path} does not exist. Try again, please."
+                f"File at path {path} does not exist. Try again, please."
             )
 
-        if params:
+        if suffix == ".csv":
             df = pd.read_csv(path, **params)
-        else:
-            for separator in [",", ";", "\t", "|"]:
-                df = pd.read_csv(path, sep=f"{separator}")
-                if len(df.columns) > 1:
-                    break
+            if df.shape[1] == 1 and params == {}:
+                for separator in [",", ";", "\t", "|"]:
+                    df = pd.read_csv(
+                        filepath_or_buffer=path, sep=f"{separator}"
+                    )
+                    if len(df.columns) > 1:
+                        break
+                if df.shape[1] == 1:
+                    user_input = get_user_input("width_of_one")
+                    if user_input == "y":
+                        pass
+                    elif user_input == "n":
+                        raise SystemExit("Try again, please.")
+
+        elif suffix == ".xlsx":
+            if params.get("engine") is None:
+                params["engine"] = "openpyxl"
+            df = pd.read_excel(path, **params)
+
         print(f"- DF loaded, with original shape of {df.shape}")
-
-        if df.shape[1] == 1:
-            user_input = get_user_input("width_of_one")
-            if user_input == "y":
-                pass
-            elif user_input == "n":
-                raise SystemExit("Try again, please.")
-
-        if index_col:
-            try:
-                df = _set_and_sort_index_col(df, index_col, path)
-            except KeyError:
-                print(f"Sorry, column {index_col} not found in file {path}.")
-        else:
-            df = df.sort_index()
+        df = df.sort_index(axis=0)
         dataframes.append(df)
 
     return dataframes[0], dataframes[1]
