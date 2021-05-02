@@ -1,25 +1,41 @@
 import datetime as dt
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
-from numpy import full
 
 import pandas as pd
 
 
-def check_input_type(frame_1, frame_2):
+def check_input_type(
+    frame_1: Union[str, Path, pd.DataFrame],
+    frame_2: Union[str, Path, pd.DataFrame],
+) -> str:
+    """Return a string indicating if the passed dataframe
+    representations are an actual Pandas DataFrame object or a
+    file path. If it is neither raise an exception.
+    """
     if isinstance(frame_1, pd.DataFrame) and isinstance(frame_2, pd.DataFrame):
-        return False
-    if (isinstance(frame_1, str) or isinstance(frame_1, Path)) and (
+        return "dataframe"
+    elif (isinstance(frame_1, str) or isinstance(frame_1, Path)) and (
         isinstance(frame_2, str) or isinstance(frame_2, Path)
     ):
-        return True
+        return "filepath"
+    else:
+        raise TypeError(
+            "Invalid object types. Plase pass either 2 paths or 2 Pandas DataFrames."
+        )
 
 
-def indentify_file_format(path_1, path_2):
+def indentify_file_format(path_1, path_2) -> str:
+    """If filepaths are passed, return a suffix string indicating if
+    it is Excel or CSV files. If it neither or if the formats differ
+    for the two files, raise an exception.
+    """
     suffix_1 = Path(path_1).suffix
     suffix_2 = Path(path_2).suffix
     if suffix_1 != suffix_2:
         raise AssertionError("File format mismatch. Same file types expected.")
+    if suffix_1 not in [".xlsx", ".csv"]:
+        raise TypeError("Invalid file types. Only .CSV or .XLSX files allowed.")
     return suffix_1
 
 
@@ -30,9 +46,12 @@ def load_files(
     load_params_1: Optional[Dict[str, str]] = None,
     load_params_2: Optional[Dict[str, str]] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Load data from files and return the dataframes. Optional load params
-    for each dataframe can be specified (according to `pd.read_csv()`) and
-    also an column name to be used as index.
+    """Load data from files and return Pandas DataFrames. Optional load
+    params for each of them can be specified (according to `pd.read_csv()`
+    and `pd.read_excel()` functions). 
+
+    Note: If no engine param is specified for excel reading, `openpyxl`
+    is set as default.
     """
     dataframes = []
     if load_params_1 is None:
@@ -75,28 +94,28 @@ def load_files(
     return dataframes[0], dataframes[1]
 
 
-def _set_and_sort_index_col(
-    df: pd.DataFrame, index_col: str, path: str
-) -> pd.DataFrame:
-    """
-    If an index_col param is passed, check if that index_col exists in
-    the dataframe and if it has unique values only. If not, reject
-    and exit. If yes, set to index and sort. This function is called
-    within `load_files`.
-    """
-    if index_col not in df.columns:
-        raise SystemExit(f"Sorry, column {index_col} not found in file {path}.")
+# def _set_and_sort_index_col(
+#     df: pd.DataFrame, index_col: str, path: str
+# ) -> pd.DataFrame:
+#     """
+#     If an index_col param is passed, check if that index_col exists in
+#     the dataframe and if it has unique values only. If not, reject
+#     and exit. If yes, set to index and sort. This function is called
+#     within `load_files`.
+#     """
+#     if index_col not in df.columns:
+#         raise SystemExit(f"Sorry, column {index_col} not found in file {path}.")
 
-    elif df[index_col].duplicated().sum() > 0:
-        raise SystemExit(
-            (
-                f"Error. Column {index_col} contains duplicate values",
-                "and cannot be used as dataframe index.",
-            )
-        )
-    else:
-        df = df.set_index(index_col, drop=True).sort_index()
-        return df
+#     elif df[index_col].duplicated().sum() > 0:
+#         raise SystemExit(
+#             (
+#                 f"Error. Column {index_col} contains duplicate values",
+#                 "and cannot be used as dataframe index.",
+#             )
+#         )
+#     else:
+#         df = df.set_index(index_col, drop=True).sort_index()
+#         return df
 
 
 def impute_missing_values(
