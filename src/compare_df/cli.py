@@ -8,7 +8,6 @@ Usage:
 Available options are:
     -l_1, --load_params_1   Load params for file 1
     -l_2, --load_params_2   Load params for file 2
-    -i, --index_col         Name of column to be used as index
 
 Contact:
 --------
@@ -35,8 +34,12 @@ arg_parser = argparse.ArgumentParser(
         ]
     )
 )
-arg_parser.add_argument("path_1", help="Path to the first file", type=str)
-arg_parser.add_argument("path_2", help="Path to the second file", type=str)
+arg_parser.add_argument(
+    "path_1", help="Path to the first .XLSX or .CSV file", type=str
+)
+arg_parser.add_argument(
+    "path_2", help="Path to the second .XLSX or .CSV file", type=str
+)
 arg_parser.add_argument(
     "-l_1",
     "--load_params_1",
@@ -45,8 +48,8 @@ arg_parser.add_argument(
     dest="load_params_1",
     help=(
         "A DF_1-specific key-value-pair to be passed as argument to "
-        "`pd.read_csv()`, e.g.`'encoding'='UFT-8'`. You can pass multiple pairs. "
-        "Defaults to None. "
+        "`pd.read_csv()` or `pd.read_excel()`, e.g.`'encoding'='UFT-8'`. "
+        "You can pass multiple pairs. Defaults to None. "
     ),
     default=None,
 )
@@ -58,24 +61,15 @@ arg_parser.add_argument(
     dest="load_params_2",
     help=(
         "A DF_2-specific key-value-pair to be passed as argument to "
-        "`pd.read_csv()`, e.g. 'encoding'='UFT-8'`. You can pass multiple pairs. "
-        "Defaults to None."
-    ),
-    default=None,
-)
-arg_parser.add_argument(
-    "-i",
-    "--index_col",
-    help=(
-        "Name of a column to use as index, dropping the original index. "
-        "Is the same for both dataframes. Defaults to None."
+        "`pd.read_csv()` or `pd.read_excel()`, e.g.`'encoding'='UFT-8'`. "
+        "You can pass multiple pairs. Defaults to None."
     ),
     default=None,
 )
 
 
 def cli() -> None:
-    """Run the full comparison process for two CSV files. Report
+    """Run the full comparison process for two dataframes. Report
     progress and results. Offer the option to save a boolean dataframe
     to excel that indicates the exact position of differing values.
     """
@@ -91,9 +85,8 @@ def cli() -> None:
         load_params_2 = dict(args.load_params_2)
     else:
         load_params_2 = args.load_params_2
-    index_col = args.index_col
 
-    __main__.main(path_1, path_2, load_params_1, load_params_2, index_col)
+    __main__.main(path_1, path_2, load_params_1, load_params_2)
 
 
 if __name__ == "__main__":
