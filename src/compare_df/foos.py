@@ -1,7 +1,7 @@
 import datetime as dt
-import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
+from numpy import full
 
 import pandas as pd
 
@@ -350,10 +350,10 @@ def save_differences_to_xlsx(path_1: str, df_diff: pd.DataFrame) -> None:
     file is saved to XLSX format with a timestamped file name to the same
     folder as to where DF_1 was loaded from.
     """
-    out_path = os.path.split(path_1)[0]
+    out_path = Path(path_1).parent
     out_name = f"compare_df_diff_output_{dt.datetime.strftime(dt.datetime.now(), '%Y-%m-%d-%H-%M-%S')}.xlsx"  # noqa: B950
-    full_out_path = os.path.join(out_path, out_name)
+    full_out_path = out_path / out_name
     writer = pd.ExcelWriter(full_out_path)
     df_diff.to_excel(writer)
     writer.save()
-    print(f"\nOutput saved to: \n{os.path.abspath(full_out_path)}")
+    print(f"\nOutput saved to: \n{full_out_path.absolute()}")
