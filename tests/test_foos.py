@@ -11,8 +11,8 @@ from compare_df import foos  # noqa
 @pytest.mark.parametrize(
     "frame_1, frame_2, expected",
     [
-        (pd.DataFrame(), pd.DataFrame(), False),
-        (Path("tests") / "df_1_file.csv", "tests/df_2_file.csv", True),
+        (pd.DataFrame(), pd.DataFrame(), "dataframe"),
+        (Path("tests") / "df_1_file.csv", "tests/df_2_file.csv", "filepath"),
     ],
 )
 def test_check_input_type(frame_1, frame_2, expected):
@@ -38,8 +38,8 @@ def test_indentify_file_format_raise():
 
 
 def test_load_csv():
-    df_1, df_2 = foos.load_csv(
-        "tests/df_1_file.csv", "tests/df_2_file.csv", None
+    df_1, df_2 = foos.load_files(
+        "tests/df_1_file.csv", "tests/df_2_file.csv", file_format=".csv"
     )
     assert df_1.shape == (2, 6)
     assert df_2.shape == (2, 6)
@@ -48,46 +48,69 @@ def test_load_csv():
 
 
 def test_load_csv_with_params():
-    df_1, df_2 = foos.load_csv(
+    df_1, df_2 = foos.load_files(
         "tests/df_1_file.csv",
         "tests/df_2_file.csv",
-        load_params_1={"sep": ","},
-        load_params_2={"sep": ","},
-        index_col="str_3",
+        file_format=".csv",
+        load_params_1={"sep": ",", "index_col": "str_3"},
+        load_params_2={"sep": ",", "index_col": "str_3"},
     )
     assert df_1.shape == df_2.shape == (2, 5)
     assert df_1.index.name == df_1.index.name == "str_3"
 
 
-def test_load_csv_with_one_col_only(monkeypatch):
+def test_load_xlsx():
+    df_1, df_2 = foos.load_files(
+        "tests/df_1_file.xlsx", "tests/df_2_file.xlsx", file_format=".xlsx",
+    )
+    assert df_1.shape == (2, 6)
+    assert df_2.shape == (2, 6)
+    assert list(df_1.columns)[:2] == ["date_1", "int_2"]
+    assert list(df_1.iloc[:, -1].values) == ["hello", np.NaN]
+
+
+def test_load_xlsx_with_params():
+    df_1, df_2 = foos.load_files(
+        "tests/df_1_file.xlsx",
+        "tests/df_2_file.xlsx",
+        file_format=".xlsx",
+        load_params_1={"index_col": "str_3"},
+        load_params_2={"index_col": "str_3"},
+    )
+    assert df_1.shape == df_2.shape == (2, 5)
+    assert df_1.index.name == df_1.index.name == "str_3"
+
+
+def test_load_files_with_one_col_only(monkeypatch):
     monkeypatch.setattr("builtins.input", lambda _: "y")
-    df_1, df_2 = foos.load_csv(
+    df_1, df_2 = foos.load_files(
         "tests/df_1_file.csv",
         "tests/df_2_file.csv",
+        file_format=".csv",
         load_params_1={"sep": ";"},
         load_params_2={"sep": ";"},
     )
     assert df_1.shape == df_2.shape == (2, 1)
 
 
-def test_load_files_with_valid_index_col():
-    df_1, df_2 = foos.load_csv(
-        "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="str_3"
-    )
-    assert df_1.shape == (2, 5)
-    assert df_2.shape == (2, 5)
-    assert list(df_1.columns)[:2] == ["date_1", "int_2"]
-    assert list(df_1.index.values) == ["row1", "row2"]
+# def test_load_files_with_valid_index_col():  # TODO
+#     df_1, df_2 = foos.load_files(
+#         "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="str_3"
+#     )
+#     assert df_1.shape == (2, 5)
+#     assert df_2.shape == (2, 5)
+#     assert list(df_1.columns)[:2] == ["date_1", "int_2"]
+#     assert list(df_1.index.values) == ["row1", "row2"]
 
 
-def test_load_files_with_invalid_index_col(capsys):
-    with pytest.raises(SystemExit) as exc_info:
-        df_1, df_2 = foos.load_csv(
-            "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="date_1"
-        )
-        captured = capsys.readouterr()
-        assert "Error. Column date_1" in captured.err
-        assert exc_info.type is SystemExit
+# def test_load_files_with_invalid_index_col(capsys):  # TODO
+#     with pytest.raises(SystemExit) as exc_info:
+#         df_1, df_2 = foos.load_files(
+#             "tests/df_1_file.csv", "tests/df_2_file.csv", index_col="date_1"
+#         )
+#         captured = capsys.readouterr()
+#         assert "Error. Column date_1" in captured.err
+#         assert exc_info.type is SystemExit
 
 
 def test_impute_missing_values(df_1_base, df_2_base):
