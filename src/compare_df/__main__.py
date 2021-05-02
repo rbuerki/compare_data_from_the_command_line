@@ -9,7 +9,6 @@ Import the package and execute main():
                                               'path_2',
                                               ['load_params_1'],
                                               ['load_params_2'],
-                                              ['index_col']
                                               )
 
 See https://github.com/rbuerki/compare_data_from_the_command_line/ for more information
@@ -26,7 +25,8 @@ Version:
 - raph-compare-df: v0.2.0
 """
 
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Union
+from pathlib import Path
 
 import pandas as pd
 
@@ -34,25 +34,26 @@ from compare_df import foos
 
 
 def main(
-    path_1: str,
-    path_2: str,
+    df_1: Union[str, Path, pd.DataFrame],
+    df_2: Union[str, Path, pd.DataFrame],
     load_params_1: Optional[Dict[str, str]] = None,
     load_params_2: Optional[Dict[str, str]] = None,
-    index_col: Optional[str] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Run the full comparison process for two CSV files. Report
     progress and results, return 3 dataframes for further investigation.
     Additionally offer the option to save `df_diff` to excel.
 
     Args:
-        path_1: path to first dataframe (referred to as "DF_1")
-        path_2: path to second dataframe (referred to as "DF_2")
+        path_1: Either a Pandas DataFrame or a path to the first file
+            (has to be either .XLSX or .CSV format). This dataframe is 
+            referred to as "DF_1")
+        path_2: Either a Pandas DataFrame or a path to the second file
+            (has to be in the same format as for DF_1). This dataframe
+            is referred to as "DF_1")
         load_params_1: Dict of key-value pairs in string format, to be
             passed to `pd.read_csv` for DF_1. Defaults to None.
         load_params_2: Dict of key-value pairs in string format, to be
             passed to `pd.read_csv` for DF_2. Defaults to None.
-        index_col: Name of a column to be used as index. Has to be in
-            both DFs and cannot have duplicate alues. Defaults to None.
 
     Returns:
         df_diff: Boolean dataframe indicating the exact positions of
@@ -61,9 +62,12 @@ def main(
         df_1: The final state of DF_1 after processing
         df_2: The final state of DF_2 after processing
     """
-    df_1, df_2 = foos.load_csv(
-        path_1, path_2, load_params_1, load_params_2, index_col
-    )
+    input_type = foos.check_input_type(df_1, df_2)
+    if input_type == "filepath":
+        file_format = foos.indentify_file_format(df_1, df_2)
+        df_1, df_2 = foos.load_files(
+            df_1, df_2, file_format, load_params_1, load_params_2
+        )
     df_1, df_2 = foos.impute_missing_values(df_1, df_2)
     df_diff = pd.DataFrame()
 
