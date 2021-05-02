@@ -99,7 +99,7 @@ def main(
         if df_diff.sum().sum() > 0:
             user_input = foos.get_user_input("output")
             if user_input == "y":
-                foos.save_differences_to_xlsx(path_1, df_diff)
+                foos.save_differences_to_xlsx(df_diff)
 
     return df_diff, df_1, df_2
 

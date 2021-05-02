@@ -42,13 +42,13 @@ def indentify_file_format(path_1, path_2) -> str:
 def load_files(
     path_1: Union[str, Path],
     path_2: Union[str, Path],
-    suffix: str,
+    file_format: str,
     load_params_1: Optional[Dict[str, str]] = None,
     load_params_2: Optional[Dict[str, str]] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load data from files and return Pandas DataFrames. Optional load
     params for each of them can be specified (according to `pd.read_csv()`
-    and `pd.read_excel()` functions). 
+    and `pd.read_excel()` functions).
 
     Note: If no engine param is specified for excel reading, `openpyxl`
     is set as default.
@@ -66,7 +66,7 @@ def load_files(
                 f"File at path {path} does not exist. Try again, please."
             )
 
-        if suffix == ".csv":
+        if file_format == ".csv":
             df = pd.read_csv(path, **params)
             if df.shape[1] == 1 and params == {}:
                 for separator in [",", ";", "\t", "|"]:
@@ -82,7 +82,7 @@ def load_files(
                     elif user_input == "n":
                         raise SystemExit("Try again, please.")
 
-        elif suffix == ".xlsx":
+        elif file_format == ".xlsx":
             if params.get("engine") is None:
                 params["engine"] = "openpyxl"
             df = pd.read_excel(path, **params)
@@ -92,30 +92,6 @@ def load_files(
         dataframes.append(df)
 
     return dataframes[0], dataframes[1]
-
-
-# def _set_and_sort_index_col(
-#     df: pd.DataFrame, index_col: str, path: str
-# ) -> pd.DataFrame:
-#     """
-#     If an index_col param is passed, check if that index_col exists in
-#     the dataframe and if it has unique values only. If not, reject
-#     and exit. If yes, set to index and sort. This function is called
-#     within `load_files`.
-#     """
-#     if index_col not in df.columns:
-#         raise SystemExit(f"Sorry, column {index_col} not found in file {path}.")
-
-#     elif df[index_col].duplicated().sum() > 0:
-#         raise SystemExit(
-#             (
-#                 f"Error. Column {index_col} contains duplicate values",
-#                 "and cannot be used as dataframe index.",
-#             )
-#         )
-#     else:
-#         df = df.set_index(index_col, drop=True).sort_index()
-#         return df
 
 
 def impute_missing_values(
@@ -187,7 +163,7 @@ def get_user_input(case: str) -> str:
         INPUT_STRING = (
             "\nDo you wish to save an XLSX file indicating all the "
             "differing values in tabular format? It will be saved "
-            "into the same folder as from where DF_1 has been loaded. "
+            "into the current working directory. "
             "Please press 'y' or 'n'.\n"
         )
     else:
@@ -364,12 +340,12 @@ def compare(df_1: pd.DataFrame, df_2: pd.DataFrame) -> pd.DataFrame:
     return df_diff
 
 
-def save_differences_to_xlsx(path_1: str, df_diff: pd.DataFrame) -> None:
+def save_differences_to_xlsx(df_diff: pd.DataFrame) -> None:
     """Save a boolean dataframe indicating all differences as "True". The
     file is saved to XLSX format with a timestamped file name to the same
     folder as to where DF_1 was loaded from.
     """
-    out_path = Path(path_1).parent
+    out_path = Path.cwd()
     out_name = f"compare_df_diff_output_{dt.datetime.strftime(dt.datetime.now(), '%Y-%m-%d-%H-%M-%S')}.xlsx"  # noqa: B950
     full_out_path = out_path / out_name
     writer = pd.ExcelWriter(full_out_path)
