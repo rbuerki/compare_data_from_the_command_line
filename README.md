@@ -17,9 +17,9 @@ Contrary to the project's title, the package can now be used either as:
 
 The accepted input formats are:
 
- - Two CSV files
- - Two XLSX files
- - Two Pandas DataFrames
+- Two CSV files
+- Two XLSX files
+- Two Pandas DataFrames
 
 (Both have to be the same, you can not use different formats.)
 
