@@ -18,7 +18,7 @@ https://github.com/rbuerki/compare_data_from_the_command_line/
 
 Version:
 --------
-- raph-compare-df: v0.2.0
+- raph-compare-df: v0.3.0
 """
 
 
