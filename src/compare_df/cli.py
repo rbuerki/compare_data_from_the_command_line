@@ -24,7 +24,7 @@ Version:
 
 import argparse
 
-from compare_df import __main__
+from compare_df.__main__ import main
 
 arg_parser = argparse.ArgumentParser(
     description="".join(
@@ -86,7 +86,7 @@ def cli() -> None:
     else:
         load_params_2 = args.load_params_2
 
-    __main__.main(path_1, path_2, load_params_1, load_params_2)
+    main(path_1, path_2, load_params_1, load_params_2)
 
 
 if __name__ == "__main__":
