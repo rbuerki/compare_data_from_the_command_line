@@ -67,42 +67,45 @@ def load_files(
             )
 
         if file_format == ".csv":
-            df = pd.read_csv(path, **params)
-            if df.shape[1] == 1 and params == {}:
-                for separator in [",", ";", "\t", "|"]:
-                    df = pd.read_csv(
-                        filepath_or_buffer=path, sep=f"{separator}"
-                    )
-                    if len(df.columns) > 1:
-                        break
-                if df.shape[1] == 1:
-                    user_input = get_user_input("width_of_one")
-                    if user_input == "y":
-                        pass
-                    elif user_input == "n":
-                        raise SystemExit("Try again, please.")
-
-        elif file_format == ".xlsx":
+            df = _read_csv(path, params)
+        else:
             if params.get("engine") is None:
                 params["engine"] = "openpyxl"
             df = pd.read_excel(path, **params)
 
         print(f"- DF loaded, with original shape of {df.shape}")
-        df = df.sort_index(axis=0)
         dataframes.append(df)
 
     return dataframes[0], dataframes[1]
+
+
+def _read_csv(path: Union[str, Path], params: Dict) -> pd.DataFrame:
+    """Read csv file into a dataframe handling some common issues."""
+    df = pd.read_csv(path, **params)
+    if df.shape[1] == 1 and params == {}:
+        for separator in [",", ";", "\t", "|"]:
+            df = pd.read_csv(filepath_or_buffer=path, sep=f"{separator}")
+            if len(df.columns) > 1:
+                break
+        if df.shape[1] == 1:
+            user_input = get_user_input("width_of_one")
+            if user_input == "y":
+                pass
+            elif user_input == "n":
+                raise SystemExit("Try again, please.")
+    return df
 
 
 def impute_missing_values(
     df_1: pd.DataFrame, df_2: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Impute any missing values with a str, because they can
-    mess up boolean comparisons.
+    mess up boolean comparisons. And sort indexes.
     """
-    df_1.fillna(value="MISSING", inplace=True)
-    df_2.fillna(value="MISSING", inplace=True)
-    return df_1, df_2
+    return (
+        df_1.fillna(value="MISSING").sort_index(axis=0),
+        df_2.fillna(value="MISSING").sort_index(axis=0),
+    )
 
 
 def check_if_dataframes_are_equal(
@@ -275,6 +278,7 @@ def handle_different_values(
                     "that could not be found in the other DF,",
                     "so they will be removed:",
                 )
+            if len(subset) <= 30:
                 for val in subset:
                     print(f"  - {val}")
             if dim == "index":
